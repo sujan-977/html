@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SURESH ONLINE SABJI PASAL — Fresh Vegetables & Fruits</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&family=Space+Mono:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+  :root{
+    --cream:#FFF8F0;
+    --ink:#102012;
+    --tomato:#D9534F;
+    --leaf:#2E8B57;
+    --wheat:#D6A44A;
+    --white:#FFFFFF;
+    --line: rgba(16,32,18,0.12);
+    --shadow: 0 10px 30px rgba(16,32,18,0.10);
+    --accent: linear-gradient(135deg, rgba(46,139,87,1), rgba(217,83,79,1));
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--cream);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    letter-spacing:-0.01em;
+  }
+  .price, .stamp, .mono{
+    font-family:'Space Mono',monospace;
+  }
+  a{color:inherit;text-decoration:none;}
+  button{font-family:inherit;cursor:pointer;border:none;background:none;}
+  img{max-width:100%;display:block;}
+
+  /* ===== Layout shell ===== */
+  #app{min-height:100vh;display:flex;flex-direction:column;}
+  .hide{display:none !important;}
+
+  /* ===== Header ===== */
+  header.site{
+    background: var(--accent);
+    color:var(--cream);
+    padding:18px 28px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    position:sticky;
+    top:0;
+    z-index:50;
+    box-shadow:0 2px 12px rgba(0,0,0,0.15);
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:1.5rem;
+  }
+  .brand .mark{
+    width:38px;height:38px;
+    border-radius:10px;
+    background:var(--accent);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Fraunces',serif;
+    font-weight:800;
+    color:var(--cream);
+    font-size:1.05rem;
+    flex-shrink:0;
+    box-shadow:var(--shadow);
+  }
+  .brand .tagline{
+    font-family:'Space Mono',monospace;
+    font-size:0.62rem;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--wheat);
+    display:block;
+    margin-top:1px;
+  }
+  .header-actions{display:flex;align-items:center;gap:18px;}
+  .admin-link{
+    font-family:'Space Mono',monospace;
+    font-size:0.72rem;
+    letter-spacing:0.06em;
+    color:rgba(250,246,237,0.55);
+    border:1px solid rgba(250,246,237,0.25);
+    padding:6px 12px;
+    border-radius:20px;
+    transition:all .2s;
+  }
+  .admin-link:hover{color:var(--cream);border-color:var(--wheat);}
+
+  .basket-btn{
+    position:relative;
+    width:48px;height:48px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .basket-btn svg{width:26px;height:26px;}
+  .basket-count{
+    position:absolute;
+    top:0px;right:0px;
+    background:var(--tomato);
+    color:var(--cream);
+    font-family:'Space Mono',monospace;
+    font-size:0.65rem;
+    font-weight:700;
+    min-width:18px;height:18px;
+    border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    padding:0 4px;
+  }
+
+  /* ===== Hero ===== */
+  .hero{
+    padding:64px 28px 40px;
+    text-align:center;
+    background:
+      radial-gradient(ellipse at 20% 0%, rgba(46,139,87,0.12), transparent 55%),
+      radial-gradient(ellipse at 85% 10%, rgba(217,83,79,0.09), transparent 50%);
+    backdrop-filter: blur(2px);
+  }
+  .hero .eyebrow{
+    font-family:'Space Mono',monospace;
+    font-size:0.72rem;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--leaf);
+    margin-bottom:14px;
+  }
+  .hero h1{
+    font-size:clamp(2.2rem, 5vw, 3.6rem);
+    margin:0 0 14px;
+    line-height:1.05;
+  }
+  .hero h1 em{
+    font-style:italic;
+    color:var(--tomato);
+  }
+  .hero p{
+    max-width:520px;
+    margin:0 auto;
+    color:rgba(31,58,38,0.7);
+    font-size:1.02rem;
+    line-height:1.5;
+  }
+
+  /* ===== Category tabs (chalkboard) ===== */
+  .tabs-wrap{
+    padding:0 28px 28px;
+    display:flex;
+    justify-content:center;
+  }
+  .tabs{
+    display:flex;
+    gap:6px;
+    background:var(--ink);
+    padding:6px;
+    border-radius:14px;
+    flex-wrap:wrap;
+    justify-content:center;
+    box-shadow:var(--shadow);
+  }
+  .tab{
+    padding:9px 18px;
+    border-radius:9px;
+    color:rgba(250,246,237,0.6);
+    font-size:0.88rem;
+    font-weight:600;
+    transition:all .2s;
+    white-space:nowrap;
+  }
+  .tab.active{
+    background:var(--wheat);
+    color:var(--ink);
+  }
+  .tab:not(.active):hover{color:var(--cream);}
+
+  /* ===== Product grid ===== */
+  .grid-wrap{
+    max-width:1180px;
+    margin:0 auto;
+    padding:0 28px 80px;
+    flex:1;
+    width:100%;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));
+    gap:22px;
+  }
+  .card{
+    background:var(--white);
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow:var(--shadow);
+    display:flex;
+    flex-direction:column;
+    position:relative;
+    transition:transform .25s ease, box-shadow .25s ease;
+  }
+  .card:hover{
+    transform:translateY(-4px);
+    box-shadow:0 14px 28px rgba(31,58,38,0.16);
+  }
+  .card .badge{
+    position:absolute;
+    top:12px;left:12px;
+    background:var(--tomato);
+    color:var(--cream);
+    font-family:'Space Mono',monospace;
+    font-size:0.6rem;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    padding:4px 9px;
+    border-radius:20px;
+    z-index:2;
+    transform:rotate(-3deg);
+  }
+  .card .badge.low{background:var(--wheat);color:var(--ink);}
+  .card .img-wrap{
+    aspect-ratio:1/0.82;
+    background:var(--cream);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:3.4rem;
+    position:relative;
+    border-bottom:1px solid var(--line);
+  }
+  .card .body{
+    padding:16px 16px 14px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    flex:1;
+  }
+  .card .name{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:1.12rem;
+    line-height:1.2;
+  }
+  .card .unit{
+    font-size:0.76rem;
+    color:rgba(31,58,38,0.55);
+    margin-top:-4px;
+  }
+  .card .row{
+    margin-top:auto;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+  }
+  .card .price{
+    font-size:1.08rem;
+    font-weight:700;
+    color:var(--ink);
+  }
+  .card .price sup{font-size:0.62em;opacity:0.6;}
+  .add-btn{
+    background:var(--ink);
+    color:var(--cream);
+    padding:9px 16px;
+    border-radius:9px;
+    font-size:0.82rem;
+    font-weight:600;
+    display:flex;align-items:center;gap:6px;
+    transition:background .2s;
+  }
+  .add-btn:hover{background:var(--tomato);}
+  .add-btn:active{transform:scale(0.96);}
+
+  .qty-stepper{
+    display:flex;
+    align-items:center;
+    background:var(--ink);
+    border-radius:9px;
+    overflow:hidden;
+  }
+  .qty-stepper button{
+    color:var(--cream);
+    width:30px;height:34px;
+    font-size:1.1rem;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .qty-stepper button:hover{background:var(--tomato);}
+  .qty-stepper span{
+    color:var(--cream);
+    font-family:'Space Mono',monospace;
+    min-width:24px;
+    text-align:center;
+    font-size:0.85rem;
+  }
+
+  /* ===== Cart drawer ===== */
+  .overlay{
+    position:fixed;inset:0;
+    background:rgba(31,58,38,0.45);
+    z-index:90;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .25s ease;
+  }
+  .overlay.open{opacity:1;pointer-events:auto;}
+
+  .drawer{
+    position:fixed;
+    top:0;right:0;
+    height:100%;
+    width:min(420px, 92vw);
+    background:var(--cream);
+    z-index:95;
+    transform:translateX(100%);
+    transition:transform .3s ease;
+    display:flex;
+    flex-direction:column;
+    box-shadow:-10px 0 30px rgba(0,0,0,0.2);
+  }
+  .drawer.open{transform:translateX(0);}
+  .drawer-head{
+    padding:22px 24px;
+    background:var(--ink);
+    color:var(--cream);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .drawer-head h2{margin:0;font-size:1.3rem;}
+  .drawer-head button{color:var(--cream);font-size:1.4rem;width:32px;height:32px;}
+  .drawer-items{
+    flex:1;
+    overflow-y:auto;
+    padding:18px 24px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+  .drawer-item{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    background:var(--white);
+    border-radius:12px;
+    padding:10px 12px;
+    box-shadow:0 2px 8px rgba(31,58,38,0.08);
+  }
+  .drawer-item .emoji{font-size:1.8rem;width:38px;text-align:center;flex-shrink:0;}
+  .drawer-item .info{flex:1;min-width:0;}
+  .drawer-item .info .nm{font-weight:600;font-size:0.92rem;}
+  .drawer-item .info .pr{font-family:'Space Mono',monospace;font-size:0.78rem;color:rgba(31,58,38,0.6);}
+  .drawer-item .remove{color:var(--tomato);font-size:0.75rem;font-weight:600;margin-top:2px;}
+  .empty-cart{
+    text-align:center;
+    padding:60px 20px;
+    color:rgba(31,58,38,0.5);
+  }
+  .empty-cart .e{font-size:3rem;margin-bottom:12px;}
+
+  .drawer-foot{
+    padding:20px 24px 24px;
+    border-top:1px solid var(--line);
+    background:var(--white);
+  }
+  .total-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:16px;
+  }
+  .total-row .lbl{font-family:'Fraunces',serif;font-size:1rem;}
+  .total-row .val{font-family:'Space Mono',monospace;font-size:1.4rem;font-weight:700;color:var(--tomato);}
+  .checkout-btn{
+    width:100%;
+    background:var(--tomato);
+    color:var(--cream);
+    padding:15px;
+    border-radius:12px;
+    font-size:1rem;
+    font-weight:700;
+    transition:background .2s;
+  }
+  .checkout-btn:hover{background:#cf4f2c;}
+  .checkout-btn:disabled{background:rgba(31,58,38,0.2);cursor:not-allowed;}
+
+  /* ===== Checkout form modal ===== */
+  .modal-overlay{
+    position:fixed;inset:0;
+    background:rgba(31,58,38,0.55);
+    z-index:120;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .2s ease;
+  }
+  .modal-overlay.open{opacity:1;pointer-events:auto;}
+  .modal{
+    background:var(--cream);
+    border-radius:18px;
+    max-width:460px;
+    width:100%;
+    max-height:90vh;
+    overflow-y:auto;
+    box-shadow:0 20px 50px rgba(0,0,0,0.3);
+  }
+  .modal-head{
+    padding:24px 26px 0;
+  }
+  .modal-head h2{margin:0 0 4px;font-size:1.5rem;}
+  .modal-head p{margin:0;color:rgba(31,58,38,0.6);font-size:0.88rem;}
+  .modal-body{padding:20px 26px 26px;display:flex;flex-direction:column;gap:14px;}
+  .field label{
+    display:block;
+    font-size:0.8rem;
+    font-weight:600;
+    margin-bottom:6px;
+    color:rgba(31,58,38,0.8);
+  }
+  .field input, .field textarea{
+    width:100%;
+    padding:11px 13px;
+    border-radius:9px;
+    border:1.5px solid var(--line);
+    background:var(--white);
+    font-family:'Inter',sans-serif;
+    font-size:0.92rem;
+    color:var(--ink);
+  }
+  .field input:focus, .field textarea:focus{
+    outline:none;
+    border-color:var(--leaf);
+  }
+  .field textarea{resize:vertical;min-height:64px;}
+  .modal-summary{
+    background:var(--white);
+    border-radius:12px;
+    padding:14px 16px;
+    font-size:0.85rem;
+  }
+  .modal-summary .srow{display:flex;justify-content:space-between;padding:4px 0;color:rgba(31,58,38,0.7);}
+  .modal-summary .srow.total{
+    border-top:1px dashed var(--line);
+    margin-top:6px;
+    padding-top:10px;
+    font-weight:700;
+    color:var(--ink);
+    font-size:0.95rem;
+  }
+  .place-order-btn{
+    width:100%;
+    background:var(--ink);
+    color:var(--cream);
+    padding:15px;
+    border-radius:12px;
+    font-size:1rem;
+    font-weight:700;
+    margin-top:4px;
+  }
+  .place-order-btn:hover{background:var(--leaf);}
+  .place-order-btn:disabled{opacity:0.5;cursor:not-allowed;}
+  .form-error{
+    color:var(--tomato);
+    font-size:0.8rem;
+    font-weight:600;
+  }
+
+  /* Confirmation screen */
+  .confirm-screen{text-align:center;padding:30px 26px 34px;}
+  .confirm-screen .stamp-circle{
+    width:80px;height:80px;
+    border-radius:50%;
+    background:var(--leaf);
+    color:var(--cream);
+    display:flex;align-items:center;justify-content:center;
+    font-size:2.2rem;
+    margin:0 auto 18px;
+  }
+  .confirm-screen h2{margin:0 0 8px;}
+  .confirm-screen p{color:rgba(31,58,38,0.7);font-size:0.92rem;line-height:1.5;margin:0 0 18px;}
+  .order-id-box{
+    background:var(--ink);
+    color:var(--wheat);
+    font-family:'Space Mono',monospace;
+    padding:12px;
+    border-radius:10px;
+    font-size:0.95rem;
+    margin-bottom:18px;
+    letter-spacing:0.04em;
+  }
+  .close-confirm{
+    width:100%;
+    background:var(--ink);
+    color:var(--cream);
+    padding:14px;
+    border-radius:12px;
+    font-weight:700;
+  }
+  .email-note{
+    font-size:0.76rem;
+    color:rgba(31,58,38,0.5);
+    margin-top:14px;
+    line-height:1.4;
+  }
+
+  /* ===== Footer ===== */
+  footer.site{
+    background:var(--ink);
+    color:rgba(250,246,237,0.55);
+    text-align:center;
+    padding:26px;
+    font-size:0.8rem;
+  }
+  footer.site strong{color:var(--wheat);}
+
+  /* ===== Toast ===== */
+  .toast{
+    position:fixed;
+    bottom:24px;
+    left:50%;
+    transform:translateX(-50%) translateY(20px);
+    background:var(--ink);
+    color:var(--cream);
+    padding:13px 22px;
+    border-radius:30px;
+    font-size:0.88rem;
+    font-weight:600;
+    box-shadow:0 10px 24px rgba(0,0,0,0.25);
+    z-index:200;
+    opacity:0;
+    transition:all .3s ease;
+    pointer-events:none;
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  /* ===================== ADMIN ===================== */
+  .admin-shell{min-height:100vh;background:var(--cream);}
+  .admin-header{
+    background:var(--ink);
+    color:var(--cream);
+    padding:18px 28px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    position:sticky;top:0;z-index:30;
+  }
+  .admin-header .brand{font-size:1.3rem;}
+  .back-store{
+    font-family:'Space Mono',monospace;
+    font-size:0.75rem;
+    color:rgba(250,246,237,0.6);
+    border:1px solid rgba(250,246,237,0.25);
+    padding:7px 14px;
+    border-radius:20px;
+  }
+  .back-store:hover{color:var(--cream);border-color:var(--wheat);}
+
+  .login-wrap{
+    min-height:80vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+  }
+  .login-card{
+    background:var(--white);
+    border-radius:18px;
+    padding:36px 32px;
+    max-width:380px;
+    width:100%;
+    box-shadow:var(--shadow);
+    text-align:center;
+  }
+  .login-card .ic{
+    width:56px;height:56px;
+    border-radius:50%;
+    background:var(--ink);
+    color:var(--wheat);
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.5rem;
+    margin:0 auto 16px;
+  }
+  .login-card h2{margin:0 0 6px;}
+  .login-card p{color:rgba(31,58,38,0.6);font-size:0.85rem;margin:0 0 20px;}
+  .login-card input{
+    width:100%;
+    padding:12px 14px;
+    border-radius:9px;
+    border:1.5px solid var(--line);
+    margin-bottom:12px;
+    font-size:0.95rem;
+    font-family:'Space Mono',monospace;
+    text-align:center;
+  }
+  .login-card input:focus{outline:none;border-color:var(--leaf);}
+  .login-card button{
+    width:100%;
+    background:var(--tomato);
+    color:var(--cream);
+    padding:13px;
+    border-radius:10px;
+    font-weight:700;
+  }
+  .login-hint{
+    margin-top:14px;
+    font-size:0.72rem;
+    color:rgba(31,58,38,0.45);
+  }
+
+  .admin-main{max-width:1100px;margin:0 auto;padding:28px;}
+  .stat-row{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+    gap:16px;
+    margin-bottom:28px;
+  }
+  .stat-card{
+    background:var(--white);
+    border-radius:14px;
+    padding:18px 20px;
+    box-shadow:var(--shadow);
+  }
+  .stat-card .num{font-family:'Space Mono',monospace;font-size:1.7rem;font-weight:700;color:var(--ink);}
+  .stat-card .lbl{font-size:0.78rem;color:rgba(31,58,38,0.55);margin-top:2px;}
+  .stat-card.accent .num{color:var(--tomato);}
+
+  .filter-row{
+    display:flex;
+    gap:8px;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+  }
+  .filter-chip{
+    padding:8px 16px;
+    border-radius:20px;
+    background:var(--white);
+    font-size:0.82rem;
+    font-weight:600;
+    border:1.5px solid var(--line);
+    color:rgba(31,58,38,0.6);
+  }
+  .filter-chip.active{background:var(--ink);color:var(--cream);border-color:var(--ink);}
+
+  .order-card{
+    background:var(--white);
+    border-radius:14px;
+    box-shadow:var(--shadow);
+    margin-bottom:16px;
+    overflow:hidden;
+  }
+  .order-card .o-head{
+    padding:16px 20px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:10px;
+    border-bottom:1px solid var(--line);
+  }
+  .order-card .o-id{font-family:'Space Mono',monospace;font-weight:700;font-size:0.92rem;}
+  .order-card .o-time{font-size:0.74rem;color:rgba(31,58,38,0.5);margin-top:2px;}
+  .status-pill{
+    font-size:0.7rem;
+    font-weight:700;
+    padding:5px 12px;
+    border-radius:20px;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+  }
+  .status-pill.pending{background:rgba(212,168,67,0.25);color:#8a6a1e;}
+  .status-pill.confirmed{background:rgba(122,155,92,0.25);color:#3f5c2a;}
+  .status-pill.cancelled{background:rgba(232,98,61,0.18);color:#a8431f;}
+
+  .o-body{padding:16px 20px;display:flex;flex-wrap:wrap;gap:24px;}
+  .o-col{flex:1;min-width:180px;}
+  .o-col h4{
+    font-size:0.7rem;
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+    color:rgba(31,58,38,0.45);
+    margin:0 0 8px;
+  }
+  .o-col .cust-line{font-size:0.88rem;margin-bottom:3px;}
+  .o-items-list{font-size:0.85rem;line-height:1.6;}
+  .o-items-list .it-row{display:flex;justify-content:space-between;gap:10px;}
+  .o-total-line{
+    font-family:'Space Mono',monospace;
+    font-weight:700;
+    font-size:1rem;
+    margin-top:8px;
+    padding-top:8px;
+    border-top:1px dashed var(--line);
+  }
+  .o-actions{
+    padding:14px 20px;
+    background:var(--cream);
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .o-actions button{
+    padding:9px 16px;
+    border-radius:9px;
+    font-size:0.82rem;
+    font-weight:600;
+  }
+  .btn-confirm{background:var(--leaf);color:var(--cream);}
+  .btn-confirm:hover{background:#688249;}
+  .btn-cancel{background:transparent;color:var(--tomato);border:1.5px solid var(--tomato);}
+  .btn-cancel:hover{background:rgba(232,98,61,0.08);}
+  .btn-pending{background:transparent;color:rgba(31,58,38,0.5);border:1.5px solid var(--line);}
+
+  .no-orders{
+    text-align:center;
+    padding:60px 20px;
+    color:rgba(31,58,38,0.45);
+  }
+  .no-orders .e{font-size:2.6rem;margin-bottom:10px;}
+
+  .config-note{
+    background:rgba(212,168,67,0.15);
+    border:1.5px dashed var(--wheat);
+    border-radius:12px;
+    padding:14px 18px;
+    font-size:0.82rem;
+    color:#6b5419;
+    margin-bottom:24px;
+    line-height:1.5;
+  }
+  .config-note code{
+    background:rgba(31,58,38,0.08);
+    padding:2px 6px;
+    border-radius:4px;
+    font-family:'Space Mono',monospace;
+  }
+
+  @media (max-width:640px){
+    header.site{padding:14px 18px;}
+    .hero{padding:44px 18px 30px;}
+    .grid-wrap{padding:0 16px 60px;}
+    .o-body{flex-direction:column;gap:14px;}
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important; animation:none !important;}
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* ============================================================
+   CONFIG — fill in your EmailJS details here to send real emails.
+   Sign up free at https://www.emailjs.com (≈5 min, no credit card)
+   ============================================================ */
+const EMAILJS_CONFIG = {
+  publicKey: "",      // e.g. "a1B2c3D4e5F6g7H8"
+  serviceId: "",       // e.g. "service_xxxxxx"
+  templateId: "",       // e.g. "template_xxxxxx"
+  adminEmail: ""    // your email, to also notify you of new orders (optional)
+};
+const ADMIN_PASSWORD = "password"; // change this to your own password
+
+/* ============================================================
+   PRODUCT DATA — edit freely: add, remove, change prices/stock
+   ============================================================ */
+const PRODUCTS = [
+  { id:'v1', name:'Tomatoes', cat:'Vegetables', price:40, unit:'per kg', emoji:'🍅', stock:'fresh' },
+  { id:'v2', name:'Spinach', cat:'Vegetables', price:25, unit:'per bunch', emoji:'🥬', stock:'fresh' },
+  { id:'v3', name:'Carrots', cat:'Vegetables', price:35, unit:'per kg', emoji:'🥕', stock:'fresh' },
+  { id:'v4', name:'Potatoes', cat:'Vegetables', price:30, unit:'per kg', emoji:'🥔', stock:'fresh' },
+  { id:'v5', name:'Onions', cat:'Vegetables', price:32, unit:'per kg', emoji:'🧅', stock:'fresh' },
+  { id:'v6', name:'Bell Peppers', cat:'Vegetables', price:55, unit:'per kg', emoji:'🫑', stock:'low' },
+  { id:'v7', name:'Broccoli', cat:'Vegetables', price:60, unit:'per head', emoji:'🥦', stock:'fresh' },
+  { id:'v8', name:'Cucumber', cat:'Vegetables', price:28, unit:'per kg', emoji:'🥒', stock:'fresh' },
+  { id:'v9', name:'Pumpkin', cat:'Vegetables', price:38, unit:'per kg', emoji:'🎃', stock:'low' },
+  { id:'v10', name:'Cauliflower', cat:'Vegetables', price:45, unit:'per head', emoji:'🥬', stock:'fresh' },
+  { id:'f1', name:'Apples', cat:'Fruits', price:120, unit:'per kg', emoji:'🍎', stock:'fresh' },
+  { id:'f2', name:'Bananas', cat:'Fruits', price:50, unit:'per dozen', emoji:'🍌', stock:'fresh' },
+  { id:'f3', name:'Oranges', cat:'Fruits', price:80, unit:'per kg', emoji:'🍊', stock:'fresh' },
+  { id:'f4', name:'Mangoes', cat:'Fruits', price:150, unit:'per kg', emoji:'🥭', stock:'low' },
+  { id:'f5', name:'Grapes', cat:'Fruits', price:90, unit:'per kg', emoji:'🍇', stock:'fresh' },
+  { id:'f6', name:'Watermelon', cat:'Fruits', price:35, unit:'per kg', emoji:'🍉', stock:'fresh' },
+  { id:'f7', name:'Strawberries', cat:'Fruits', price:180, unit:'per box', emoji:'🍓', stock:'low' },
+  { id:'f8', name:'Pineapple', cat:'Fruits', price:70, unit:'per piece', emoji:'🍍', stock:'fresh' },
+  { id:'f9', name:'Pears', cat:'Fruits', price:110, unit:'per kg', emoji:'🍐', stock:'fresh' },
+  { id:'f10', name:'Lemons', cat:'Fruits', price:60, unit:'per kg', emoji:'🍋', stock:'fresh' },
+];
+
+/* ============================================================
+   STATE — persisted in memory for this session.
+   Orders are kept in window state (and localStorage if available
+   in your real hosting environment) so admin can see them.
+   ============================================================ */
+let cart = {}; // {productId: qty}
+let orders = [];
+let currentView = 'store'; // store | admin-login | admin
+let activeCategory = 'All';
+let orderFilter = 'All';
+let isAdminAuthed = false;
+
+// Try to restore orders from localStorage (works once hosted; falls back silently in sandboxed previews)
+try {
+  const saved = localStorage.getItem('freshmarket_orders');
+  if (saved) orders = JSON.parse(saved);
+} catch(e) {}
+
+function persistOrders(){
+  try { localStorage.setItem('freshmarket_orders', JSON.stringify(orders)); } catch(e) {}
+}
+
+// init EmailJS if configured
+if (EMAILJS_CONFIG.publicKey && window.emailjs) {
+  try { emailjs.init(EMAILJS_CONFIG.publicKey); } catch(e){}
+}
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+function generateOrderId(){
+  const d = new Date();
+  return 'HS-' + d.getFullYear().toString().slice(2) +
+    String(d.getMonth()+1).padStart(2,'0') +
+    String(d.getDate()).padStart(2,'0') + '-' +
+    Math.floor(1000 + Math.random()*9000);
+}
+
+function cartCount(){
+  return Object.values(cart).reduce((a,b)=>a+b,0);
+}
+
+function cartTotal(){
+  return Object.entries(cart).reduce((sum,[id,qty])=>{
+    const p = PRODUCTS.find(p=>p.id===id);
+    return sum + (p ? p.price*qty : 0);
+  },0);
+}
+
+function showToast(msg, icon){
+  let t = document.getElementById('toast');
+  if(!t){
+    t = document.createElement('div');
+    t.id='toast';
+    t.className='toast';
+    document.body.appendChild(t);
+  }
+  t.innerHTML = (icon || '✓') + ' ' + msg;
+  t.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(()=> t.classList.remove('show'), 2200);
+}
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+/* ============================================================
+   RENDER: ROUTER
+   ============================================================ */
+function render(){
+  const app = document.getElementById('app');
+  if(currentView === 'store') app.innerHTML = renderStore();
+  else if(currentView === 'admin-login') app.innerHTML = renderAdminLogin();
+  else if(currentView === 'admin') app.innerHTML = renderAdmin();
+  attachGlobalListeners();
+}
+
+/* ============================================================
+   STORE VIEW
+   ============================================================ */
+function renderStore(){
+  const categories = ['All', ...new Set(PRODUCTS.map(p=>p.cat))];
+  const filtered = activeCategory==='All' ? PRODUCTS : PRODUCTS.filter(p=>p.cat===activeCategory);
+
+  return `
+    <header class="site">
+      <div class="brand">
+        <div class="mark">S</div>
+        <div>
+          SURESH ONLINE SABJI PASAL
+          <span class="tagline">Fresh sabji · Daily delivery</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <a href="#" class="admin-link" onclick="goAdmin();return false;">Admin</a>
+        <button class="basket-btn" onclick="openCart()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7h18l-1.5 12.5a2 2 0 0 1-2 1.5H6.5a2 2 0 0 1-2-1.5L3 7Z"/><path d="M8 7V5a4 4 0 0 1 8 0v2"/></svg>
+          <span class="basket-count" style="color:white;">${cartCount()}</span>
+        </button>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="eyebrow">Picked this morning</div>
+      <h1>Fresh from the <em>field</em><br>to your kitchen</h1>
+      <p>Hand-picked vegetables and fruits, sold by the basket. Choose what you need, and we'll have it ready for you.</p>
+    </section>
+
+    <div class="tabs-wrap">
+      <div class="tabs">
+        ${categories.map(c => `<button class="tab ${c===activeCategory?'active':''}" onclick="setCategory('${c}')">${c}</button>`).join('')}
+      </div>
+    </div>
+
+    <div class="grid-wrap">
+      <div class="grid">
+        ${filtered.map(p => renderCard(p)).join('')}
+      </div>
+    </div>
+
+    <footer class="site">
+      <strong>SURESH ONLINE SABJI PASAL</strong> — fresh produce, ordered online, confirmed by hand.
+    </footer>
+
+    <div class="overlay" id="cartOverlay" onclick="closeCart()"></div>
+    <div class="drawer" id="cartDrawer">
+      ${renderDrawerContent()}
+    </div>
+
+    <div class="modal-overlay" id="checkoutOverlay">
+      <div class="modal" id="checkoutModal"></div>
+    </div>
+  `;
+}
+
+function renderCard(p){
+  const qty = cart[p.id] || 0;
+  return `
+    <div class="card">
+      ${p.stock==='low' ? '<div class="badge low">Few left</div>' : '<div class="badge">Fresh today</div>'}
+      <div class="img-wrap">${p.emoji}</div>
+      <div class="body">
+        <div class="name">${p.name}</div>
+        <div class="unit">${p.unit}</div>
+        <div class="row">
+          <div class="price">₹${p.price}<sup>/${p.unit.replace('per ','')}</sup></div>
+          ${qty===0
+            ? `<button class="add-btn" onclick="addToCart('${p.id}')">+ Add</button>`
+            : `<div class="qty-stepper">
+                <button onclick="changeQty('${p.id}',-1)">−</button>
+                <span>${qty}</span>
+                <button onclick="changeQty('${p.id}',1)">+</button>
+               </div>`
+          }
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderDrawerContent(){
+  const items = Object.entries(cart);
+  return `
+    <div class="drawer-head">
+      <h2>Your basket</h2>
+      <button onclick="closeCart()">×</button>
+    </div>
+    <div class="drawer-items">
+      ${items.length===0 ? `
+        <div class="empty-cart">
+          <div class="e">🧺</div>
+          <div>Your basket is empty.<br>Add some fresh produce!</div>
+        </div>
+      ` : items.map(([id,qty])=>{
+        const p = PRODUCTS.find(p=>p.id===id);
+        if(!p) return '';
+        return `
+          <div class="drawer-item">
+            <div class="emoji">${p.emoji}</div>
+            <div class="info">
+              <div class="nm">${p.name} × ${qty}</div>
+              <div class="pr">₹${p.price} ${p.unit} · ₹${p.price*qty} total</div>
+              <div class="remove" onclick="removeFromCart('${id}')">Remove</div>
+            </div>
+            <div class="qty-stepper">
+              <button onclick="changeQty('${id}',-1)">−</button>
+              <span>${qty}</span>
+              <button onclick="changeQty('${id}',1)">+</button>
+            </div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+    <div class="drawer-foot">
+      <div class="total-row">
+        <div class="lbl">Total</div>
+        <div class="val">₹${cartTotal()}</div>
+      </div>
+      <button class="checkout-btn" ${items.length===0?'disabled':''} onclick="openCheckout()">
+        Proceed to checkout
+      </button>
+    </div>
+  `;
+}
+
+function renderCard_refresh(){
+  // re-render grid + drawer without full page reload (keeps scroll position reasonable)
+  render();
+}
+
+function setCategory(c){
+  activeCategory = c;
+  render();
+}
+
+function addToCart(id){
+  cart[id] = (cart[id]||0) + 1;
+  renderCard_refresh();
+  openCart(true);
+  showToast('Added to basket', '🧺');
+}
+
+function changeQty(id, delta){
+  cart[id] = (cart[id]||0) + delta;
+  if(cart[id] <= 0) delete cart[id];
+  renderCard_refresh();
+}
+
+function removeFromCart(id){
+  delete cart[id];
+  renderCard_refresh();
+}
+
+function openCart(silent){
+  document.getElementById('cartOverlay')?.classList.add('open');
+  document.getElementById('cartDrawer')?.classList.add('open');
+}
+
+function closeCart(){
+  document.getElementById('cartOverlay')?.classList.remove('open');
+  document.getElementById('cartDrawer')?.classList.remove('open');
+}
+
+/* ============================================================
+   CHECKOUT FLOW
+   ============================================================ */
+function openCheckout(){
+  const modal = document.getElementById('checkoutModal');
+  modal.innerHTML = renderCheckoutForm();
+  document.getElementById('checkoutOverlay').classList.add('open');
+}
+
+function closeCheckout(){
+  document.getElementById('checkoutOverlay').classList.remove('open');
+}
+
+function renderCheckoutForm(){
+  const items = Object.entries(cart);
+  return `
+    <div class="modal-head">
+      <h2>Almost there</h2>
+      <p>Tell us where to send your confirmation and produce.</p>
+    </div>
+    <div class="modal-body">
+      <div class="field">
+        <label>Full name</label>
+        <input type="text" id="custName" placeholder="e.g. Anjali Sharma">
+      </div>
+      <div class="field">
+        <label>Email address</label>
+        <input type="email" id="custEmail" placeholder="you@example.com">
+      </div>
+      <div class="field">
+        <label>Phone number</label>
+        <input type="tel" id="custPhone" placeholder="e.g. 98765 43210">
+      </div>
+      <div class="field">
+        <label>Delivery address</label>
+        <textarea id="custAddress" placeholder="House no, street, area, city"></textarea>
+      </div>
+      <div class="modal-summary">
+        ${items.map(([id,qty])=>{
+          const p = PRODUCTS.find(p=>p.id===id);
+          return `<div class="srow"><span>${p.name} × ${qty}</span><span>₹${p.price*qty}</span></div>`;
+        }).join('')}
+        <div class="srow total"><span>Total</span><span>₹${cartTotal()}</span></div>
+      </div>
+      <div class="form-error hide" id="checkoutError"></div>
+      <button class="place-order-btn" id="placeOrderBtn" onclick="submitOrder()">Place order</button>
+    </div>
+  `;
+}
+
+async function submitOrder(){
+  const name = document.getElementById('custName').value.trim();
+  const email = document.getElementById('custEmail').value.trim();
+  const phone = document.getElementById('custPhone').value.trim();
+  const address = document.getElementById('custAddress').value.trim();
+  const errEl = document.getElementById('checkoutError');
+  const btn = document.getElementById('placeOrderBtn');
+
+  if(!name || !email || !phone || !address){
+    errEl.textContent = 'Please fill in all fields before placing your order.';
+    errEl.classList.remove('hide');
+    return;
+  }
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if(!emailPattern.test(email)){
+    errEl.textContent = 'Please enter a valid email address.';
+    errEl.classList.remove('hide');
+    return;
+  }
+  errEl.classList.add('hide');
+  btn.disabled = true;
+  btn.textContent = 'Placing order...';
+
+  const orderId = generateOrderId();
+  const itemsList = Object.entries(cart).map(([id,qty])=>{
+    const p = PRODUCTS.find(p=>p.id===id);
+    return { name:p.name, qty, price:p.price, lineTotal:p.price*qty, unit:p.unit, emoji:p.emoji };
+  });
+  const total = cartTotal();
+
+  const order = {
+    id: orderId,
+    name, email, phone, address,
+    items: itemsList,
+    total,
+    status: 'pending',
+    createdAt: new Date().toISOString()
+  };
+
+  orders.unshift(order);
+  persistOrders();
+
+  // attempt to send email via EmailJS if configured
+  let emailSent = false;
+  if (EMAILJS_CONFIG.publicKey && EMAILJS_CONFIG.serviceId && EMAILJS_CONFIG.templateId && window.emailjs){
+    try{
+      const itemsText = itemsList.map(i => `${i.name} x${i.qty} (${i.unit}) - ₹${i.lineTotal}`).join('\n');
+      await emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, {
+        order_id: orderId,
+        to_name: name,
+        to_email: email,
+        customer_phone: phone,
+        customer_address: address,
+        items_text: itemsText,
+        order_total: '₹' + total,
+        reply_to: EMAILJS_CONFIG.adminEmail || email
+      });
+      emailSent = true;
+    } catch(e){
+      console.warn('EmailJS send failed:', e);
+      emailSent = false;
+    }
+  }
+
+  cart = {};
+  showConfirmation(order, emailSent);
+}
+
+function showConfirmation(order, emailSent){
+  const modal = document.getElementById('checkoutModal');
+  modal.innerHTML = `
+    <div class="confirm-screen">
+      <div class="stamp-circle">✓</div>
+      <h2>Order placed!</h2>
+      <p>Thanks, ${escapeHtml(order.name)}. Your order has been received and is waiting for confirmation from our team.</p>
+      <div class="order-id-box">Order ID: ${order.id}</div>
+      <button class="close-confirm" onclick="closeCheckoutAndRefresh()">Back to shopping</button>
+      <div class="email-note">
+        ${emailSent
+          ? `A confirmation email has been sent to ${escapeHtml(order.email)}.`
+          : `Email sending isn't fully set up yet, so no email was sent — but your order is saved and visible in the Admin panel. See the setup note inside the code (EMAILJS_CONFIG) to enable real emails.`
+        }
+      </div>
+    </div>
+  `;
+}
+
+function closeCheckoutAndRefresh(){
+  closeCheckout();
+  closeCart();
+  render();
+}
+
+/* ============================================================
+   ADMIN VIEWS
+   ============================================================ */
+function goAdmin(){
+  currentView = isAdminAuthed ? 'admin' : 'admin-login';
+  render();
+}
+
+function goStore(){
+  currentView = 'store';
+  render();
+}
+
+function renderAdminLogin(){
+  return `
+    <div class="admin-shell">
+      <header class="admin-header">
+        <div class="brand">🧺 SURESH ONLINE SABJI PASAL — Admin</div>
+        <a href="#" class="back-store" onclick="goStore();return false;">← Back to store</a>
+      </header>
+      <div class="login-wrap">
+        <div class="login-card">
+          <div class="ic">🔒</div>
+          <h2>Admin access</h2>
+          <p>Enter the admin password to view and manage orders.</p>
+          <input type="password" id="adminPass" placeholder="Password" onkeydown="if(event.key==='Enter')tryAdminLogin()">
+          <button onclick="tryAdminLogin()">Log in</button>
+          <div class="form-error hide" id="loginError" style="margin-top:10px;"></div>
+          <div class="login-hint">Default password is set in the code as ADMIN_PASSWORD.</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function tryAdminLogin(){
+  const val = document.getElementById('adminPass').value;
+  if(val === ADMIN_PASSWORD){
+    isAdminAuthed = true;
+    currentView = 'admin';
+    render();
+  } else {
+    const err = document.getElementById('loginError');
+    err.textContent = 'Incorrect password. Please try again.';
+    err.classList.remove('hide');
+  }
+}
+
+function renderAdmin(){
+  const pendingCount = orders.filter(o=>o.status==='pending').length;
+  const confirmedCount = orders.filter(o=>o.status==='confirmed').length;
+  const revenue = orders.filter(o=>o.status==='confirmed').reduce((s,o)=>s+o.total,0);
+
+  const filters = ['All','pending','confirmed','cancelled'];
+  const filtered = orderFilter==='All' ? orders : orders.filter(o=>o.status===orderFilter);
+
+  const needsConfig = !(EMAILJS_CONFIG.publicKey && EMAILJS_CONFIG.serviceId && EMAILJS_CONFIG.templateId);
+
+  return `
+    <div class="admin-shell">
+      <header class="admin-header">
+        <div class="brand">🧺 SURESH ONLINE SABJI PASAL — Admin</div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <a href="#" class="back-store" onclick="goStore();return false;">← Back to store</a>
+          <a href="#" class="back-store" onclick="adminLogout();return false;">Log out</a>
+        </div>
+      </header>
+      <div class="admin-main">
+        ${needsConfig ? `
+          <div class="config-note">
+            <strong>Email sending isn't connected yet.</strong> Orders are saving correctly, but customers won't get real confirmation emails until you add your EmailJS keys in the <code>EMAILJS_CONFIG</code> section near the top of the page code. Ask me anytime for the exact 5-minute setup steps.
+          </div>
+        ` : ''}
+
+        <div class="stat-row">
+          <div class="stat-card">
+            <div class="num">${orders.length}</div>
+            <div class="lbl">Total orders</div>
+          </div>
+          <div class="stat-card accent">
+            <div class="num">${pendingCount}</div>
+            <div class="lbl">Awaiting confirmation</div>
+          </div>
+          <div class="stat-card">
+            <div class="num">${confirmedCount}</div>
+            <div class="lbl">Confirmed</div>
+          </div>
+          <div class="stat-card">
+            <div class="num">₹${revenue}</div>
+            <div class="lbl">Confirmed revenue</div>
+          </div>
+        </div>
+
+        <div class="filter-row">
+          ${filters.map(f => `<button class="filter-chip ${f===orderFilter?'active':''}" onclick="setOrderFilter('${f}')">${f === 'All' ? 'All' : f.charAt(0).toUpperCase()+f.slice(1)}</button>`).join('')}
+        </div>
+
+        ${filtered.length===0 ? `
+          <div class="no-orders">
+            <div class="e">📭</div>
+            <div>No orders ${orderFilter!=='All' ? 'with status "'+orderFilter+'"' : 'yet'}.</div>
+          </div>
+        ` : filtered.map(o => renderOrderCard(o)).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function setOrderFilter(f){
+  orderFilter = f;
+  render();
+}
+
+function adminLogout(){
+  isAdminAuthed = false;
+  currentView = 'store';
+  render();
+}
+
+function renderOrderCard(o){
+  const date = new Date(o.createdAt);
+  const timeStr = date.toLocaleString('en-IN', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' });
+  return `
+    <div class="order-card">
+      <div class="o-head">
+        <div>
+          <div class="o-id">${o.id}</div>
+          <div class="o-time">${timeStr}</div>
+        </div>
+        <div class="status-pill ${o.status}">${o.status}</div>
+      </div>
+      <div class="o-body">
+        <div class="o-col">
+          <h4>Customer</h4>
+          <div class="cust-line"><strong>${escapeHtml(o.name)}</strong></div>
+          <div class="cust-line">${escapeHtml(o.email)}</div>
+          <div class="cust-line">${escapeHtml(o.phone)}</div>
+          <div class="cust-line">${escapeHtml(o.address)}</div>
+        </div>
+        <div class="o-col">
+          <h4>Items</h4>
+          <div class="o-items-list">
+            ${o.items.map(i => `<div class="it-row"><span>${i.emoji} ${i.name} × ${i.qty}</span><span>₹${i.lineTotal}</span></div>`).join('')}
+          </div>
+          <div class="o-total-line">Total: ₹${o.total}</div>
+        </div>
+      </div>
+      <div class="o-actions">
+        <button class="btn-confirm" onclick="setOrderStatus('${o.id}','confirmed')">✓ Confirm order</button>
+        <button class="btn-pending" onclick="setOrderStatus('${o.id}','pending')">Mark pending</button>
+        <button class="btn-cancel" onclick="setOrderStatus('${o.id}','cancelled')">Cancel order</button>
+      </div>
+    </div>
+  `;
+}
+
+function setOrderStatus(id, status){
+  const o = orders.find(o=>o.id===id);
+  if(o){
+    o.status = status;
+    persistOrders();
+    render();
+    showToast('Order ' + id + ' marked ' + status, status==='confirmed' ? '✓' : (status==='cancelled' ? '✕' : '⏳'));
+  }
+}
+
+function attachGlobalListeners(){
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape'){
+      closeCheckout();
+      closeCart();
+    }
+  }, { once:true });
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+render();
+</script>
+</body>
+</html>
