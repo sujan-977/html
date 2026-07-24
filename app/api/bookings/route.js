@@ -197,3 +197,33 @@ export async function PATCH(request) {
     )
   }
 }
+ // booking confirmation
+ <h2>Dear {{name}},</h2>
+
+<p>Thank you for choosing <strong>Atithi Restro & Lodge</strong>.</p>
+
+<p>Your booking request has been received successfully.</p>
+
+<h3>Booking Details</h3>
+
+<ul>
+  <li><strong>Booking ID:</strong> {{booking_id}}</li>
+  <li><strong>Branch:</strong> {{branch}}</li>
+  <li><strong>Check-in:</strong> {{checkin}}</li>
+  <li><strong>Check-out:</strong> {{checkout}}</li>
+  <li><strong>Room:</strong> {{room}}</li>
+</ul>
+
+<p>
+Our team will review your booking shortly. You will receive another email once your reservation has been confirmed.
+</p>
+
+<p>
+If you have any questions, please contact us.
+</p>
+
+<p>
+Thank you,<br>
+<strong>Atithi Restro & Lodge</strong><br>
+Atithi Devo Bhava
+</p>
