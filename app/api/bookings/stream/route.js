@@ -1,4 +1,4 @@
-import { subscribe } from '../store'
+import { subcribe } from '../store'
 
 function authorized(request) {
   const key = request.headers.get('x-admin-key') || new URL(request.url).searchParams.get('adminKey')
