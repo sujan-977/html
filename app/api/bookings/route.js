@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getSupabaseServerClient } from '@/lib/supabase-server'
-import { sendBookingDecisionEmail } from '@/lib/booking-email'
+import { sendBookingReceivedEmail } from '@/lib/sendbookingreceivedemail'
 
 function authorized(request) {
   const key =
@@ -10,28 +10,29 @@ function authorized(request) {
   return Boolean(process.env.ADMIN_KEY) && key === process.env.ADMIN_KEY
 }
 
-// =========================
+// =======================================
 // CREATE BOOKING
-// =========================
+// =======================================
 export async function POST(request) {
   try {
     console.log("POST /api/bookings reached")
+
     const booking = await request.json()
 
     console.log("BOOKING DATA:", booking)
 
-    if (!booking?.name || !booking?.email) {
+    if (!booking.name || !booking.email) {
       return NextResponse.json(
         {
-          error: 'Booking ID, customer name and email are required.',
+          error: "Customer name and email are required."
         },
         { status: 400 }
       )
     }
 
     const token = request.headers
-      .get('authorization')
-      ?.replace(/^Bearer\s+/i, '')
+      .get("authorization")
+      ?.replace(/^Bearer\s+/i, "")
 
     const supabase = getSupabaseServerClient()
 
@@ -43,7 +44,7 @@ export async function POST(request) {
     if (userError || !user) {
       return NextResponse.json(
         {
-          error: 'Please sign in before making a booking.',
+          error: "Please sign in before making a booking."
         },
         { status: 401 }
       )
@@ -52,178 +53,176 @@ export async function POST(request) {
     if (user.email !== booking.email) {
       return NextResponse.json(
         {
-          error: 'Booking email does not match the logged in account.',
+          error: "Booking email does not match the signed in user."
         },
         { status: 401 }
       )
     }
 
     const { data, error } = await supabase
-  .from('bookings')
-  .insert({
-    
-    user_id: user.id,
-    name: booking.name,
-    phone: booking.phone,
-    email: booking.email,
-    branch: booking.branch,
-    checkin: booking.checkin,
-    checkout: booking.checkout,
-    room_type: booking.room_type,
-    guests: booking.guests,
-    payment_method: booking.payment_method,
-    status: booking.status,
-    created_at: booking.created_at,
-  })
-  .select()
-  .single()
+      .from("bookings")
+      .insert({
+        user_id: user.id,
+        name: booking.name,
+        phone: booking.phone,
+        email: booking.email,
+        branch: booking.branch,
+        checkin: booking.checkin,
+        checkout: booking.checkout,
+
+        // Maps frontend fields
+        room_type: booking.room,
+        guests: booking.guests,
+        payment_method: booking.payment,
+
+        status: booking.status || "Pending",
+        created_at: booking.created,
+      })
+      .select()
+      .single()
 
     if (error) {
-  console.error('Supabase INSERT Error:', error)
-  return NextResponse.json(
-    {
-      error: error.message,
-      details: error
-    },
-    { status: 500 }
-  )
-}
+      console.error("Supabase INSERT Error:", error)
+
+      return NextResponse.json(
+        {
+          error: error.message,
+          details: error,
+        },
+        { status: 500 }
+      )
+    }
+
+    // Send booking received email
+    try {
+      await sendBookingReceivedEmail(data)
+    } catch (emailError) {
+      console.error("Booking email error:", emailError)
+      // Booking is still successful even if email fails
+    }
 
     return NextResponse.json(
       {
         booking: data,
+        message: "Booking created successfully."
       },
       { status: 201 }
     )
+
   } catch (error) {
-    console.error('POST /api/bookings Error:', error)
+    console.error("POST /api/bookings Error:", error)
 
     return NextResponse.json(
       {
         error:
           error instanceof Error
             ? error.message
-            : 'Failed to create booking.',
+            : "Failed to create booking."
       },
       { status: 500 }
     )
   }
 }
 
-// =========================
+// =======================================
 // LOAD BOOKINGS (ADMIN)
-// =========================
+// =======================================
 export async function GET(request) {
+
   if (!authorized(request)) {
     return NextResponse.json(
       {
-        error: 'Invalid admin key.',
+        error: "Invalid admin key."
       },
       { status: 401 }
     )
   }
 
   try {
+
     const supabase = getSupabaseServerClient()
 
     const { data, error } = await supabase
-      .from('bookings')
-      .select('*')
-      .order('created_at', { ascending: false })
+      .from("bookings")
+      .select("*")
+      .order("created_at", { ascending: false })
 
-    if (error) {
-      console.error('Supabase SELECT Error:', error)
-      throw error
-    }
+    if (error) throw error
 
     return NextResponse.json({
-      bookings: data,
+      bookings: data
     })
+
   } catch (error) {
-    console.error('GET /api/bookings Error:', error)
+
+    console.error(error)
 
     return NextResponse.json(
       {
-        error:
-          error instanceof Error
-            ? error.message
-            : 'Could not load bookings.',
+        error: "Could not load bookings."
       },
       { status: 500 }
     )
   }
 }
 
-// =========================
-// CONFIRM / REJECT BOOKING (ADMIN)
-// =========================
+// =======================================
+// CONFIRM / REJECT BOOKING
+// =======================================
 export async function PATCH(request) {
+
   if (!authorized(request)) {
-    return NextResponse.json({ error: 'Invalid admin key.' }, { status: 401 })
+    return NextResponse.json(
+      {
+        error: "Invalid admin key."
+      },
+      { status: 401 }
+    )
   }
 
   try {
+
     const { id, status } = await request.json()
-    if (!id || !['Confirmed', 'Rejected'].includes(status)) {
-      return NextResponse.json({ error: 'A booking ID and a valid decision are required.' }, { status: 400 })
-    }
 
-    const supabase = getSupabaseServerClient()
-    const { data: booking, error: updateError } = await supabase
-      .from('bookings')
-      .update({ status })
-      .eq('id', id)
-      .select()
-      .single()
-
-    if (updateError) throw updateError
-
-    try {
-      await sendBookingDecisionEmail(booking, status)
-    } catch (emailError) {
-      console.error('Booking decision email error:', emailError)
+    if (!id || !["Confirmed", "Rejected"].includes(status)) {
       return NextResponse.json(
-        { booking, error: `Booking ${status.toLowerCase()}, but the customer email could not be sent: ${emailError.message}` },
-        { status: 502 }
+        {
+          error: "Invalid booking status."
+        },
+        { status: 400 }
       )
     }
 
-    return NextResponse.json({ booking, message: `Booking ${status.toLowerCase()} and customer notified.` })
+    const supabase = getSupabaseServerClient()
+
+    const { data: booking, error } = await supabase
+      .from("bookings")
+      .update({
+        status
+      })
+      .eq("id", id)
+      .select()
+      .single()
+
+    if (error) throw error
+
+    return NextResponse.json({
+      booking,
+      message: `Booking ${status.toLowerCase()} successfully.`
+    })
+
   } catch (error) {
-    console.error('PATCH /api/bookings Error:', error)
+
+    console.error(error)
+
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Could not update the booking.' },
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "Could not update booking."
+      },
       { status: 500 }
     )
   }
 }
- // booking confirmation
- <h2>Dear {{name}},</h2>
-
-<p>Thank you for choosing <strong>Atithi Restro & Lodge</strong>.</p>
-
-<p>Your booking request has been received successfully.</p>
-
-<h3>Booking Details</h3>
-
-<ul>
-  <li><strong>Booking ID:</strong> {{booking_id}}</li>
-  <li><strong>Branch:</strong> {{branch}}</li>
-  <li><strong>Check-in:</strong> {{checkin}}</li>
-  <li><strong>Check-out:</strong> {{checkout}}</li>
-  <li><strong>Room:</strong> {{room}}</li>
-</ul>
-
-<p>
-Our team will review your booking shortly. You will receive another email once your reservation has been confirmed.
-</p>
-
-<p>
-If you have any questions, please contact us.
-</p>
-
-<p>
-Thank you,<br>
-<strong>Atithi Restro & Lodge</strong><br>
-Atithi Devo Bhava
-</p>
