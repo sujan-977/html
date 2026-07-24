@@ -160,7 +160,7 @@ main{
 table{
     width:100%;
     border-collapse:collapse;
-    min-width:1200px;
+    min-width:1350px;
 }
 
 thead{
@@ -215,6 +215,34 @@ strong{
     background:#d6f8de;
     color:#148a35;
 }
+
+.pill.rejected{
+    background:#ffe0e0;
+    color:#b42318;
+}
+
+.actions{
+    display:flex;
+    gap:8px;
+}
+
+.decision{
+    border:0;
+    border-radius:8px;
+    color:white;
+    cursor:pointer;
+    font-weight:600;
+    padding:9px 12px;
+}
+
+.decision:disabled{
+    cursor:not-allowed;
+    opacity:.55;
+}
+
+.accept{ background:#16803a; }
+.reject{ background:#c33227; }
+.decision:hover:not(:disabled){ filter:brightness(.92); }
 
 /* EMPTY */
 

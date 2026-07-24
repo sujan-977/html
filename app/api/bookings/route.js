@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getSupabaseServerClient } from '@/lib/supabase-server'
+import { sendBookingDecisionEmail } from '@/lib/booking-email'
 
 function authorized(request) {
   const key =
@@ -148,6 +149,50 @@ export async function GET(request) {
             ? error.message
             : 'Could not load bookings.',
       },
+      { status: 500 }
+    )
+  }
+}
+
+// =========================
+// CONFIRM / REJECT BOOKING (ADMIN)
+// =========================
+export async function PATCH(request) {
+  if (!authorized(request)) {
+    return NextResponse.json({ error: 'Invalid admin key.' }, { status: 401 })
+  }
+
+  try {
+    const { id, status } = await request.json()
+    if (!id || !['Confirmed', 'Rejected'].includes(status)) {
+      return NextResponse.json({ error: 'A booking ID and a valid decision are required.' }, { status: 400 })
+    }
+
+    const supabase = getSupabaseServerClient()
+    const { data: booking, error: updateError } = await supabase
+      .from('bookings')
+      .update({ status })
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (updateError) throw updateError
+
+    try {
+      await sendBookingDecisionEmail(booking, status)
+    } catch (emailError) {
+      console.error('Booking decision email error:', emailError)
+      return NextResponse.json(
+        { booking, error: `Booking ${status.toLowerCase()}, but the customer email could not be sent: ${emailError.message}` },
+        { status: 502 }
+      )
+    }
+
+    return NextResponse.json({ booking, message: `Booking ${status.toLowerCase()} and customer notified.` })
+  } catch (error) {
+    console.error('PATCH /api/bookings Error:', error)
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Could not update the booking.' },
       { status: 500 }
     )
   }
