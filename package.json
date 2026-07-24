@@ -1,15 +1,22 @@
 {
-  "name": "atithi-booking-site",
-  "version": "1.0.0",
+  "name": "atithi-next",
+  "version": "0.1.0",
   "private": true,
-  "type": "commonjs",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
   },
   "dependencies": {
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2",
-    "nodemailer": "^9.0.3"
+    "@supabase/supabase-js": "^2.110.7",
+    "next": "16.2.10",
+    "nodemailer": "^9.0.3",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "devDependencies": {
+    "eslint": "^9",
+    "eslint-config-next": "16.2.10"
   }
 }

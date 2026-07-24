@@ -1,0 +1,285 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    background:#f5f7fb;
+    color:#222;
+}
+
+/* HEADER */
+
+header{
+    background:#111;
+    color:white;
+    padding:22px 40px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    box-shadow:0 5px 20px rgba(0,0,0,.15);
+}
+
+.brand h1{
+    font-size:30px;
+    margin-bottom:6px;
+}
+
+#live-state{
+    color:#f5a623;
+    font-size:14px;
+}
+
+.back{
+    color:white;
+    text-decoration:none;
+    padding:10px 20px;
+    border:2px solid #f5a623;
+    border-radius:40px;
+    transition:.3s;
+}
+
+.back:hover{
+    background:#f5a623;
+}
+
+/* MAIN */
+
+main{
+    max-width:1400px;
+    margin:35px auto;
+    padding:0 20px;
+}
+
+/* TOOLBAR */
+
+.toolbar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:15px;
+    align-items:center;
+    margin-bottom:30px;
+}
+
+.control{
+    padding:14px 16px;
+    border:1px solid #ddd;
+    border-radius:12px;
+    outline:none;
+    font-size:15px;
+    background:white;
+    transition:.3s;
+}
+
+.control:focus{
+    border-color:#f5a623;
+    box-shadow:0 0 0 3px rgba(245,166,35,.15);
+}
+
+#search{
+    flex:1;
+    min-width:260px;
+}
+
+.admin-key{
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+}
+
+/* BUTTONS */
+
+.btn{
+    border:none;
+    background:#f5a623;
+    color:white;
+    padding:14px 22px;
+    border-radius:12px;
+    cursor:pointer;
+    font-weight:600;
+    transition:.3s;
+}
+
+.btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 8px 20px rgba(0,0,0,.18);
+}
+
+.btn.secondary{
+    background:#444;
+}
+
+/* STATUS CARDS */
+
+.statusbar{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:20px;
+    margin-bottom:35px;
+}
+
+.stat{
+    background:white;
+    padding:25px;
+    border-radius:18px;
+    box-shadow:0 8px 25px rgba(0,0,0,.08);
+    text-align:center;
+}
+
+.stat strong{
+    display:block;
+    font-size:34px;
+    color:#f5a623;
+    margin-bottom:8px;
+}
+
+.stat span{
+    color:#777;
+    font-size:15px;
+}
+
+/* PANEL */
+
+.panel{
+    background:white;
+    border-radius:18px;
+    box-shadow:0 12px 35px rgba(0,0,0,.08);
+    overflow:hidden;
+}
+
+.table-wrap{
+    overflow-x:auto;
+}
+
+/* TABLE */
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:1200px;
+}
+
+thead{
+    background:#111;
+    color:white;
+}
+
+thead th{
+    padding:18px;
+    text-align:left;
+    font-size:14px;
+    letter-spacing:.5px;
+}
+
+tbody td{
+    padding:18px;
+    border-bottom:1px solid #eee;
+    vertical-align:top;
+}
+
+tbody tr{
+    transition:.25s;
+}
+
+tbody tr:hover{
+    background:#fff8ef;
+}
+
+strong{
+    font-weight:600;
+}
+
+.muted{
+    color:#888;
+    font-size:13px;
+    margin-top:4px;
+}
+
+/* STATUS PILL */
+
+.pill{
+    display:inline-block;
+    padding:8px 18px;
+    border-radius:50px;
+    background:#ffe8a3;
+    color:#8a6400;
+    font-weight:600;
+    font-size:13px;
+}
+
+.pill.confirmed{
+    background:#d6f8de;
+    color:#148a35;
+}
+
+/* EMPTY */
+
+.empty{
+    text-align:center;
+    padding:70px 20px;
+    color:#999;
+    font-size:18px;
+}
+
+/* SCROLLBAR */
+
+.table-wrap::-webkit-scrollbar{
+    height:8px;
+}
+
+.table-wrap::-webkit-scrollbar-thumb{
+    background:#f5a623;
+    border-radius:20px;
+}
+
+/* MOBILE */
+
+@media(max-width:900px){
+
+header{
+    flex-direction:column;
+    gap:20px;
+    text-align:center;
+}
+
+.toolbar{
+    flex-direction:column;
+    align-items:stretch;
+}
+
+.admin-key{
+    flex-direction:column;
+}
+
+.control,
+.btn{
+    width:100%;
+}
+
+.statusbar{
+    grid-template-columns:1fr 1fr;
+}
+
+}
+
+@media(max-width:600px){
+
+.statusbar{
+    grid-template-columns:1fr;
+}
+
+.brand h1{
+    font-size:24px;
+}
+
+thead th,
+tbody td{
+    padding:14px;
+    font-size:13px;
+}
+
+}
