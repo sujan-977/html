@@ -162,18 +162,18 @@ export default function HomePage() {
       alert('Please fill in all required fields.'); return;
     }
     const booking = {
-      name,
-      phone,
-      email: currentUser.email,
-      branch,
-      checkin,
-      checkout,
-      room_type: room,
-      guests,
-      food,
-      payment_method: selPayment || 'TBD',
-      status: 'Pending',
-      created_at: new Date().toISOString(),
+  name,
+  phone,
+  email,
+  branch,
+  checkin,
+  checkout,
+  room_type: room,
+  guests,
+  payment_method: payment,
+  status: "Pending",
+  created_at: new Date().toISOString(),
+}
     };
     const msg = encodeURIComponent("*New Booking — Atithi Restro & Lodge*\nName: "+name+"\nEmail: "+currentUser.email+"\nPhone: "+phone+"\nBranch: "+branch+"\nCheck-in: "+checkin+"\nCheck-out: "+checkout+"\nRoom: "+room+"\nGuests: "+guests+"\nFood: "+(food||"None")+"\nPayment: "+booking.payment_method);
     setWaLink("https://wa.me/9779828776126?text="+msg);
