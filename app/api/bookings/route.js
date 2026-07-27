@@ -96,13 +96,10 @@ export async function POST(request) {
       )
     }
 
-    // Send booking received email
-    try {
-      await sendBookingReceivedEmail(data)
-    } catch (emailError) {
+    // Do not make the guest wait for email delivery before showing confirmation.
+    void sendBookingReceivedEmail(data).catch(emailError => {
       console.error("Booking email error:", emailError)
-      // Booking is still successful even if email fails
-    }
+    })
 
     return NextResponse.json(
       {

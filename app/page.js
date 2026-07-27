@@ -27,6 +27,76 @@ const reviews = [
   {name:"Hari Thapa",loc:"Chitwan",stars:5,text:"Stayed for 3 nights, room was clean and comfortable. The breakfast is wonderful. Highly recommended!"},
 ];
 
+const bsMonthNames = ['Baishakh', 'Jestha', 'Asar', 'Shrawan', 'Bhadra', 'Ashoj', 'Kartik', 'Mangsir', 'Poush', 'Magh', 'Falgun', 'Chaitra'];
+const bsMonthDays = [31, 32, 31, 32, 31, 30, 30, 30, 29, 30, 29, 30];
+
+function getTodayBs() {
+  try {
+    const formatter = new Intl.DateTimeFormat('en-NP-u-ca-bikram-sambat', { year: 'numeric', month: 'numeric', day: 'numeric' });
+    if (formatter.resolvedOptions().calendar !== 'bikram-sambat') throw new Error('Bikram Sambat calendar is unavailable');
+    const parts = formatter.formatToParts(new Date());
+    const value = type => Number(parts.find(part => part.type === type)?.value);
+    const year = value('year'), month = value('month'), day = value('day');
+    if (year && month && day) return { year, month, day };
+  } catch {}
+
+  // Fallback for browsers without the Bikram Sambat Intl calendar. 2083-01-01 BS is 14 April 2026.
+  const anchor = Date.UTC(2026, 3, 14);
+  let remaining = Math.floor((Date.UTC(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()) - anchor) / 86400000);
+  let year = 2083, month = 1, day = 1;
+  while (remaining > 0) {
+    day += 1;
+    if (day > bsMonthDays[month - 1]) { day = 1; month += 1; }
+    if (month > 12) { month = 1; year += 1; }
+    remaining -= 1;
+  }
+  return { year, month, day };
+}
+
+function bsValue({ year, month, day }) {
+  return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+}
+
+function nextBsValue(value) {
+  let [year, month, day] = value.split('-').map(Number);
+  day += 1;
+  if (day > bsMonthDays[month - 1]) {
+    day = 1;
+    month += 1;
+    if (month > 12) { month = 1; year += 1; }
+  }
+  return bsValue({ year, month, day });
+}
+
+function BsDatePicker({ label, value, onChange, minValue }) {
+  const today = getTodayBs();
+  const minimum = minValue || bsValue(today);
+  const [minYear, minMonth, minDay] = minimum.split('-').map(Number);
+  const [year, month, day] = value.split('-').map(Number);
+  const monthStart = year === minYear ? minMonth : 1;
+  const dayStart = year === minYear && month === minMonth ? minDay : 1;
+  const update = next => onChange(bsValue({ year, month, day, ...next }));
+
+  return <div className="fg bs-date-picker">
+    <label>{label} <span>BS</span></label>
+    <div className="bs-date-fields">
+      <select aria-label={`${label} year`} value={year} onChange={e => {
+        const nextYear = Number(e.target.value);
+        const nextMonth = Math.max(month, nextYear === minYear ? minMonth : 1);
+        update({ year: nextYear, month: nextMonth, day: nextYear === minYear && nextMonth === minMonth ? minDay : 1 });
+      }}>
+        {[minYear, minYear + 1, minYear + 2].map(item => <option key={item} value={item}>{item}</option>)}
+      </select>
+      <select aria-label={`${label} month`} value={month} onChange={e => update({ month: Number(e.target.value), day: 1 })}>
+        {bsMonthNames.slice(monthStart - 1).map((name, index) => <option key={name} value={index + monthStart}>{name}</option>)}
+      </select>
+      <select aria-label={`${label} day`} value={day} onChange={e => update({ day: Number(e.target.value) })}>
+        {Array.from({ length: bsMonthDays[month - 1] - dayStart + 1 }, (_, index) => index + dayStart).map(item => <option key={item} value={item}>{item}</option>)}
+      </select>
+    </div>
+  </div>;
+}
+
 export default function HomePage() {
   const [currentUser, setCurrentUser] = useState(null);
   const [menuCat, setMenuCat] = useState('all');
@@ -42,6 +112,10 @@ export default function HomePage() {
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
   const [waLink, setWaLink] = useState('');
   const [user, setUser] = useState(null)
+  const [todayBs] = useState(() => bsValue(getTodayBs()));
+  const [checkinBs, setCheckinBs] = useState(() => bsValue(getTodayBs()));
+  const [checkoutBs, setCheckoutBs] = useState(() => nextBsValue(bsValue(getTodayBs())));
+  const [isBookingLoading, setIsBookingLoading] = useState(false);
 
   useEffect(() => {
     async function loadUser() {
@@ -71,6 +145,11 @@ export default function HomePage() {
 
   async function handleAuth(mode) {
   if (isAuthLoading) return
+
+  if (mode === 'signup' && currentUser) {
+    alert('You are already logged in. Please sign out before creating another account.')
+    return
+  }
 
   if (!authEmail || !authPassword) {
     alert('Please enter your email and password.')
@@ -150,16 +229,23 @@ export default function HomePage() {
 
   async function submitBooking() {
     if (!requireSignIn()) return;
+    if (isBookingLoading) return;
     const name = document.getElementById('f-name').value.trim();
     const phone = document.getElementById('f-phone').value.trim();
     const branch = document.getElementById('f-branch').value;
-    const checkin = document.getElementById('f-checkin').value;
-    const checkout = document.getElementById('f-checkout').value;
+    const checkin = checkinBs;
+    const checkout = checkoutBs;
     const room = document.getElementById('f-room').value;
     const guests = document.getElementById('f-guests').value;
     const food = document.getElementById('f-food').value;
     if (!name || !phone || !branch || !checkin || !checkout || !room) {
       alert('Please fill in all required fields.'); return;
+    }
+    if (checkin < todayBs || checkout < todayBs) {
+      alert('Please choose today or a future date.'); return;
+    }
+    if (checkout <= checkin) {
+      alert('Check-out must be after check-in.'); return;
     }
     const booking = {
       name,
@@ -175,8 +261,9 @@ export default function HomePage() {
       status: 'Pending',
       created: new Date().toISOString(),
     };
-    const msg = encodeURIComponent("*New Booking — Atithi Restro & Lodge*\nName: "+name+"\nEmail: "+currentUser.email+"\nPhone: "+phone+"\nBranch: "+branch+"\nCheck-in: "+checkin+"\nCheck-out: "+checkout+"\nRoom: "+room+"\nGuests: "+guests+"\nFood: "+(food||"None")+"\nPayment: "+booking.payment_method);
+    const msg = encodeURIComponent("*New Booking — Atithi Restro & Lodge*\nName: "+name+"\nEmail: "+currentUser.email+"\nPhone: "+phone+"\nBranch: "+branch+"\nCheck-in (BS): "+checkin+"\nCheck-out (BS): "+checkout+"\nRoom: "+room+"\nGuests: "+guests+"\nFood: "+(food||"None")+"\nPayment: "+(booking.payment || "Not selected"));
     setWaLink("https://wa.me/9779828776126?text="+msg);
+    setIsBookingLoading(true);
     try {
       const res = await fetch('/api/bookings', {
         method:'POST',
@@ -188,8 +275,10 @@ export default function HomePage() {
       setModalMsg("Thank you "+name+"! Your booking has been saved successfully. We will confirm it at "+currentUser.email+".");
     } catch(err) {
       setModalMsg(err.message || 'We could not save your booking. Please try again or contact us directly.');
+    } finally {
+      setIsBookingLoading(false);
+      setShowModal(true);
     }
-    setShowModal(true);
   }
 
   return (
@@ -365,8 +454,8 @@ export default function HomePage() {
               </div>
             </div>
             <div className="fg-row">
-              <div className="fg"><label>Check-in</label><input id="f-checkin" type="date" /></div>
-              <div className="fg"><label>Check-out</label><input id="f-checkout" type="date" /></div>
+              <BsDatePicker label="Check-in" value={checkinBs} onChange={next => { setCheckinBs(next); if (checkoutBs <= next) setCheckoutBs(nextBsValue(next)); }} minValue={todayBs} />
+              <BsDatePicker label="Check-out" value={checkoutBs} onChange={setCheckoutBs} minValue={checkinBs > todayBs ? checkinBs : todayBs} />
             </div>
             <div className="fg"><label>Room Type</label>
               <select id="f-room">
@@ -387,7 +476,7 @@ export default function HomePage() {
                 ))}
               </div>
             </div>
-            <button className="submit-3d" onClick={submitBooking}>Request Booking</button>
+            <button className="submit-3d" onClick={submitBooking} disabled={isBookingLoading}>{isBookingLoading ? 'Sending request…' : 'Request Booking'}</button>
             {waLink && <a id="wa-link" href={waLink} target="_blank" rel="noreferrer" className="wa-3d">
               <svg width="18" height="18" fill="white" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12.05 2C6.495 2 2 6.507 2 12.067c0 1.903.504 3.683 1.376 5.224L2 22l4.85-1.273a9.98 9.98 0 0 0 5.2 1.446h.004C17.554 22.173 22 17.666 22 12.106 22 6.547 17.605 2 12.05 2m-.001 18.173a8.306 8.306 0 0 1-4.243-1.162l-.304-.181-3.15.826.842-3.072-.198-.315A8.228 8.228 0 0 1 3.73 12.067c0-4.583 3.73-8.316 8.319-8.316 4.589 0 8.32 3.733 8.32 8.316 0 4.584-3.731 8.106-8.32 8.106"/></svg>
               Send via WhatsApp
@@ -498,11 +587,11 @@ export default function HomePage() {
       {showModal && (
         <div className="modal-overlay show" onClick={() => setShowModal(false)}>
           <div className="modal-box" onClick={e => e.stopPropagation()}>
-            <div className="modal-icon">🎉</div>
-            <h3>Booking Received!</h3>
+            <div className="modal-icon">✓</div>
+            <h3>Request received</h3>
             <p id="modal-msg">{modalMsg}</p>
-            {waLink && <a href={waLink} target="_blank" rel="noreferrer" className="wa-3d" style={{display:'flex',alignItems:'center',justifyContent:'center',gap:8,marginBottom:12}}>Also Send via WhatsApp</a>}
-            <button className="modal-btn" onClick={() => setShowModal(false)}>Close</button>
+            {waLink && <a href={waLink} target="_blank" rel="noreferrer" className="wa-3d modal-wa">Share on WhatsApp</a>}
+            <button className="modal-btn" onClick={() => setShowModal(false)}>Done</button>
           </div>
         </div>
       )}
@@ -510,8 +599,9 @@ export default function HomePage() {
       {/* AUTH MODAL */}
       {showAuth && (
         <div className="modal-overlay auth-modal show" onClick={() => !isAuthLoading && setShowAuth(false)}>
-          <div className="modal-box" style={{textAlign:'left',maxWidth:460,padding:32}} onClick={e => e.stopPropagation()}>
+          <div className="modal-box auth-card" onClick={e => e.stopPropagation()}>
             <div className="auth-head">
+              <div className="auth-logo"><Image src="/logo.jpg" alt="Atithi" width={54} height={54} /></div>
               <div>
                 <h3>{authTab === 'signup' ? 'Create Account' : 'Welcome Back'}</h3>
                 <p>{authTab === 'signup' ? 'Sign up to book a room at Atithi.' : 'Sign in to your Atithi account.'}</p>
