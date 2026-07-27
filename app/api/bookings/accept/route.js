@@ -3,6 +3,8 @@ import { NextResponse } from "next/server";
 import { resend } from "@/lib/resend";
 import { getSupabaseServerClient } from "@/lib/supabase-server";
 
+const sender = `Atithi Restro & Lodge <${process.env.RESEND_FROM || 'bookings@atithi.sujan-katuwal.com.np'}>`;
+
 export async function POST(req) {
 
     const body = await req.json();
@@ -17,7 +19,7 @@ export async function POST(req) {
       .eq("id", body.bookingId);
 
     await resend.emails.send({
-      from:"Atithi Restro <booking@yourdomain.com>",
+      from: sender,
       to: body.email,
       subject:"Your booking has been confirmed!",
       html: `

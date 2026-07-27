@@ -162,18 +162,18 @@ export default function HomePage() {
       alert('Please fill in all required fields.'); return;
     }
     const booking = {
-  name,
-  phone,
-  email,
-  branch,
-  checkin,
-  checkout,
-  room_type: room,
-  guests,
-  payment_method: payment,
-  status: "Pending",
-  created_at: new Date().toISOString(),
-}
+      name,
+      phone,
+      email: currentUser.email,
+      branch,
+      checkin,
+      checkout,
+      room,
+      guests,
+      food,
+      payment: selPayment,
+      status: 'Pending',
+      created: new Date().toISOString(),
     };
     const msg = encodeURIComponent("*New Booking — Atithi Restro & Lodge*\nName: "+name+"\nEmail: "+currentUser.email+"\nPhone: "+phone+"\nBranch: "+branch+"\nCheck-in: "+checkin+"\nCheck-out: "+checkout+"\nRoom: "+room+"\nGuests: "+guests+"\nFood: "+(food||"None")+"\nPayment: "+booking.payment_method);
     setWaLink("https://wa.me/9779828776126?text="+msg);
@@ -187,7 +187,7 @@ export default function HomePage() {
       if (!res.ok) throw new Error(data.error || 'Could not save the booking.');
       setModalMsg("Thank you "+name+"! Your booking has been saved successfully. We will confirm it at "+currentUser.email+".");
     } catch(err) {
-      setModalMsg('We could not save your booking. Please try again or contact us directly.');
+      setModalMsg(err.message || 'We could not save your booking. Please try again or contact us directly.');
     }
     setShowModal(true);
   }

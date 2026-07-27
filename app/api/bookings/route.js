@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getSupabaseServerClient } from '@/lib/supabase-server'
 import { sendBookingReceivedEmail } from '@/lib/sendbookingreceivedemail'
+import { sendBookingDecisionEmail } from '@/lib/sendBookingDecisionEmail'
 
 function authorized(request) {
   const key =
@@ -62,6 +63,7 @@ export async function POST(request) {
     const { data, error } = await supabase
       .from("bookings")
       .insert({
+        id: crypto.randomUUID(),
         user_id: user.id,
         name: booking.name,
         phone: booking.phone,
@@ -73,6 +75,7 @@ export async function POST(request) {
         // Maps frontend fields
         room_type: booking.room,
         guests: booking.guests,
+        food: booking.food,
         payment_method: booking.payment,
 
         status: booking.status || "Pending",
@@ -206,9 +209,18 @@ export async function PATCH(request) {
 
     if (error) throw error
 
+    let emailWarning = ''
+    try {
+      await sendBookingDecisionEmail(booking)
+    } catch (emailError) {
+      console.error('Booking decision email error:', emailError)
+      emailWarning = 'Booking status was updated, but the customer email could not be sent.'
+    }
+
     return NextResponse.json({
       booking,
-      message: `Booking ${status.toLowerCase()} successfully.`
+      message: emailWarning || `Booking ${status.toLowerCase()} successfully and customer notified.`,
+      error: emailWarning || undefined,
     })
 
   } catch (error) {
