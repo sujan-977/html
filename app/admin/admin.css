@@ -47,6 +47,8 @@ header{
     background:#f5a623;
 }
 
+.admin-header-actions{display:flex;gap:10px;align-items:center}.admin-header-actions button{background:transparent;font:inherit;cursor:pointer}.admin-loading,.admin-login-page{min-height:100vh;max-width:none;margin:0;display:grid;place-items:center;background:radial-gradient(circle at 75% 20%,#163c69 0,transparent 35%),#07111f;color:#edf4ff}.admin-login-card{width:min(440px,calc(100% - 32px));padding:38px;border:1px solid rgba(245,166,35,.3);border-radius:22px;background:linear-gradient(145deg,#102b4c,#0b1d35);box-shadow:0 24px 60px rgba(0,0,0,.35)}.admin-login-card .back{display:inline-block;margin-bottom:30px}.admin-login-card h1{font-size:34px;margin:7px 0}.admin-login-card>p:not(.admin-auth-message){color:#b9c7d9;line-height:1.6;margin-bottom:24px}.admin-kicker{color:#f5a623!important;text-transform:uppercase;letter-spacing:.12em;font-size:11px}.admin-login-card label{display:block;color:#dce8f8;font-size:13px;font-weight:600;margin:14px 0 7px}.admin-login-card input{width:100%;margin-top:7px;border:1px solid rgba(255,255,255,.18);border-radius:10px;background:#07111f;color:#edf4ff;padding:13px;font:inherit}.admin-login-card .btn{width:100%;margin-top:22px}.admin-auth-message{min-height:22px;color:#f5a623;font-size:13px;margin-top:12px}
+
 /* MAIN */
 
 main{

@@ -2,10 +2,15 @@
 import { NextResponse } from "next/server";
 import { resend } from "@/lib/resend";
 import { getSupabaseServerClient } from "@/lib/supabase-server";
+import { isAdminRequest } from '@/lib/admin-auth';
 
 const sender = `Atithi Restro & Lodge <${process.env.RESEND_FROM || 'bookings@atithi.sujan-katuwal.com.np'}>`;
 
 export async function POST(req) {
+
+    if (!isAdminRequest(req)) {
+      return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
+    }
 
     const body = await req.json();
 
@@ -27,7 +32,7 @@ export async function POST(req) {
 
         <p>Your booking has been confirmed.</p>
 
-        <ul>
+                                          <ul>
           <li>Room: ${body.room}</li>
           <li>Check-in: ${body.checkin}</li>
           <li>Check-out: ${body.checkout}</li>

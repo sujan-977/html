@@ -309,7 +309,6 @@ export default function HomePage() {
             <li><Link href="/loc">Locations</Link></li>
             <li><Link href="/menu">Menu</Link></li>
             <li><Link href="/#booking">Book Now</Link></li>
-            <li><Link href="/admin" className="nav-cta">Admin</Link></li>
           </ul>
           <div style={{display:'flex',gap:8,alignItems:'center',position:'relative'}}>
             {currentUser ? (

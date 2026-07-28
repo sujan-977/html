@@ -319,7 +319,8 @@ nav{
     right:-420px;
     width:400px;
     height:100vh;
-    background:white;
+    background:#0b1d35;
+    color:#edf4ff;
     transition:.4s;
     z-index:1001;
     display:flex;
@@ -335,12 +336,13 @@ nav{
     justify-content:space-between;
     align-items:center;
     padding:20px;
-    border-bottom:1px solid #eee;
+    border-bottom:1px solid rgba(245,166,35,.18);
 }
 
 .close-cart{
     border:none;
     background:none;
+    color:#edf4ff;
     font-size:30px;
     cursor:pointer;
 }
@@ -362,7 +364,7 @@ nav{
 }
 
 .ci-price{
-    color:#888;
+    color:#a9bad0;
     font-size:14px;
 }
 
@@ -377,7 +379,7 @@ nav{
     justify-content:center;
     align-items:center;
     height:100%;
-    color:#999;
+    color:#a9bad0;
 }
 
 .empty-cart div{
@@ -388,7 +390,7 @@ nav{
 
 .cart-footer{
     padding:20px;
-    border-top:1px solid #eee;
+    border-top:1px solid rgba(245,166,35,.18);
 }
 
 .cart-total-row{

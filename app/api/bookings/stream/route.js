@@ -1,12 +1,8 @@
-import { subcribe } from '../store'
-
-function authorized(request) {
-  const key = request.headers.get('x-admin-key') || new URL(request.url).searchParams.get('adminKey')
-  return Boolean(process.env.ADMIN_KEY) && key === process.env.ADMIN_KEY
-}
+import { subscribe } from '../store'
+import { isAdminRequest } from '@/lib/admin-auth'
 
 export function GET(request) {
-  if (!authorized(request)) return new Response('Invalid admin key.', { status: 401 })
+  if (!isAdminRequest(request)) return new Response('Unauthorized.', { status: 401 })
 
   const encoder = new TextEncoder()
   let unsubscribe

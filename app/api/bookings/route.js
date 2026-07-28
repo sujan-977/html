@@ -2,14 +2,7 @@ import { NextResponse } from 'next/server'
 import { getSupabaseServerClient } from '@/lib/supabase-server'
 import { sendBookingReceivedEmail } from '@/lib/sendbookingreceivedemail'
 import { sendBookingDecisionEmail } from '@/lib/sendBookingDecisionEmail'
-
-function authorized(request) {
-  const key =
-    request.headers.get('x-admin-key') ||
-    new URL(request.url).searchParams.get('adminKey')
-
-  return Boolean(process.env.ADMIN_KEY) && key === process.env.ADMIN_KEY
-}
+import { isAdminRequest } from '@/lib/admin-auth'
 
 // =======================================
 // CREATE BOOKING
@@ -129,7 +122,7 @@ export async function POST(request) {
 // =======================================
 export async function GET(request) {
 
-  if (!authorized(request)) {
+  if (!isAdminRequest(request)) {
     return NextResponse.json(
       {
         error: "Invalid admin key."
@@ -171,7 +164,7 @@ export async function GET(request) {
 // =======================================
 export async function PATCH(request) {
 
-  if (!authorized(request)) {
+  if (!isAdminRequest(request)) {
     return NextResponse.json(
       {
         error: "Invalid admin key."
