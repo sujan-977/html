@@ -69,32 +69,39 @@ function nextBsValue(value) {
 }
 
 function BsDatePicker({ label, value, onChange, minValue }) {
-  const today = getTodayBs();
-  const minimum = minValue || bsValue(today);
-  const [minYear, minMonth, minDay] = minimum.split('-').map(Number);
+  const minimum = minValue || bsValue(getTodayBs());
+  const [open, setOpen] = useState(false);
+  const [view, setView] = useState(() => { const [year, month] = value.split('-').map(Number); return { year, month }; });
   const [year, month, day] = value.split('-').map(Number);
-  const monthStart = year === minYear ? minMonth : 1;
-  const dayStart = year === minYear && month === minMonth ? minDay : 1;
-  const update = next => onChange(bsValue({ year, month, day, ...next }));
+  const [minYear, minMonth] = minimum.split('-').map(Number);
+  const changeMonth = direction => setView(current => {
+    const total = current.year * 12 + current.month - 1 + direction;
+    const next = { year: Math.floor(total / 12), month: (total % 12) + 1 };
+    return next.year < minYear || (next.year === minYear && next.month < minMonth) ? current : next;
+  });
+  const blanks = Array.from({ length: new Date(view.year - 57, view.month - 1, 1).getDay() });
+  const choose = pickedDay => { onChange(bsValue({ year: view.year, month: view.month, day: pickedDay })); setOpen(false); };
 
   return <div className="fg bs-date-picker">
     <label>{label} <span>BS</span></label>
-    <div className="bs-date-fields">
-      <select aria-label={`${label} year`} value={year} onChange={e => {
-        const nextYear = Number(e.target.value);
-        const nextMonth = Math.max(month, nextYear === minYear ? minMonth : 1);
-        update({ year: nextYear, month: nextMonth, day: nextYear === minYear && nextMonth === minMonth ? minDay : 1 });
-      }}>
-        {[minYear, minYear + 1, minYear + 2].map(item => <option key={item} value={item}>{item}</option>)}
-      </select>
-      <select aria-label={`${label} month`} value={month} onChange={e => update({ month: Number(e.target.value), day: 1 })}>
-        {bsMonthNames.slice(monthStart - 1).map((name, index) => <option key={name} value={index + monthStart}>{name}</option>)}
-      </select>
-      <select aria-label={`${label} day`} value={day} onChange={e => update({ day: Number(e.target.value) })}>
-        {Array.from({ length: bsMonthDays[month - 1] - dayStart + 1 }, (_, index) => index + dayStart).map(item => <option key={item} value={item}>{item}</option>)}
-      </select>
-    </div>
+    <button type="button" className="bs-date-trigger" onClick={() => setOpen(!open)} aria-expanded={open}>
+      <span>▣</span>{day} {bsMonthNames[month - 1]} {year} BS
+    </button>
+    {open && <div className="bs-calendar">
+      <div className="bs-calendar-head"><button type="button" onClick={() => changeMonth(-1)} disabled={view.year === minYear && view.month === minMonth}>‹</button><strong>{bsMonthNames[view.month - 1]} {view.year}</strong><button type="button" onClick={() => changeMonth(1)}>›</button></div>
+      <div className="bs-weekdays">{['S','M','T','W','T','F','S'].map((item, index) => <span key={`${item}${index}`}>{item}</span>)}</div>
+      <div className="bs-days">{blanks.map((_, index) => <i key={`blank${index}`} />)}{Array.from({ length: bsMonthDays[view.month - 1] }, (_, index) => index + 1).map(item => {
+        const date = bsValue({ year: view.year, month: view.month, day: item });
+        return <button type="button" key={item} disabled={date < minimum} className={date === value ? 'selected' : ''} onClick={() => choose(item)}>{item}</button>;
+      })}</div>
+    </div>}
   </div>;
+}
+
+function bsNights(start, end) {
+  let cursor = start, nights = 0;
+  while (cursor < end && nights < 800) { cursor = nextBsValue(cursor); nights += 1; }
+  return nights;
 }
 
 export default function HomePage() {
@@ -115,6 +122,7 @@ export default function HomePage() {
   const [todayBs] = useState(() => bsValue(getTodayBs()));
   const [checkinBs, setCheckinBs] = useState(() => bsValue(getTodayBs()));
   const [checkoutBs, setCheckoutBs] = useState(() => nextBsValue(bsValue(getTodayBs())));
+  const [checkinTime, setCheckinTime] = useState('14:00');
   const [isBookingLoading, setIsBookingLoading] = useState(false);
 
   useEffect(() => {
@@ -254,6 +262,7 @@ export default function HomePage() {
       branch,
       checkin,
       checkout,
+      checkinTime,
       room,
       guests,
       food,
@@ -261,7 +270,7 @@ export default function HomePage() {
       status: 'Pending',
       created: new Date().toISOString(),
     };
-    const msg = encodeURIComponent("*New Booking — Atithi Restro & Lodge*\nName: "+name+"\nEmail: "+currentUser.email+"\nPhone: "+phone+"\nBranch: "+branch+"\nCheck-in (BS): "+checkin+"\nCheck-out (BS): "+checkout+"\nRoom: "+room+"\nGuests: "+guests+"\nFood: "+(food||"None")+"\nPayment: "+(booking.payment || "Not selected"));
+    const msg = encodeURIComponent("*New Booking — Atithi Restro & Lodge*\nName: "+name+"\nEmail: "+currentUser.email+"\nPhone: "+phone+"\nBranch: "+branch+"\nCheck-in (BS): "+checkin+" at "+checkinTime+"\nCheck-out (BS): "+checkout+"\nStay: "+bsNights(checkin, checkout)+" night(s)\nRoom: "+room+"\nGuests: "+guests+"\nFood: "+(food||"None")+"\nPayment: "+(booking.payment || "Not selected"));
     setWaLink("https://wa.me/9779828776126?text="+msg);
     setIsBookingLoading(true);
     try {
@@ -456,6 +465,10 @@ export default function HomePage() {
             <div className="fg-row">
               <BsDatePicker label="Check-in" value={checkinBs} onChange={next => { setCheckinBs(next); if (checkoutBs <= next) setCheckoutBs(nextBsValue(next)); }} minValue={todayBs} />
               <BsDatePicker label="Check-out" value={checkoutBs} onChange={setCheckoutBs} minValue={checkinBs > todayBs ? checkinBs : todayBs} />
+            </div>
+            <div className="fg-row booking-details">
+              <div className="fg"><label>Check-in Time</label><input type="time" value={checkinTime} onChange={e => setCheckinTime(e.target.value)} /></div>
+              <div className="stay-summary"><span>Your stay</span><strong>{bsNights(checkinBs, checkoutBs)} night{bsNights(checkinBs, checkoutBs) === 1 ? '' : 's'}</strong></div>
             </div>
             <div className="fg"><label>Room Type</label>
               <select id="f-room">
