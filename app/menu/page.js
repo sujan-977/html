@@ -23,11 +23,28 @@ const sections = {
 
 const ALL_CATS = Object.keys(sections);
 
+const GROUPS = [
+  { id: 'beverages', label: 'Beverages', icon: '🥤', cats: ['hot-bev', 'cold-bev'] },
+  { id: 'breakfast', label: 'Breakfast', icon: '🍳', cats: ['breakfast'] },
+  { id: 'meals', label: 'Meals & Rice', icon: '🍛', cats: ['khana', 'fried-rice', 'biryani', 'noodles'] },
+  { id: 'momo', label: 'Mo:Mo', icon: '🥟', cats: ['momo'] },
+  { id: 'sekuwa', label: 'Sekuwa & Grill', icon: '🍖', cats: ['sekuwa'] },
+  { id: 'snacks', label: 'Nepali Snacks', icon: '🥗', cats: ['nepali-snacks', 'sadeko'] },
+  { id: 'chinese', label: 'Chinese', icon: '🥢', cats: ['chinese'] },
+  { id: 'soup', label: 'Soups', icon: '🍲', cats: ['soup'] },
+];
+
 export default function MenuPage() {
   const [cart, setCart] = useState({});
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [activeGroup, setActiveGroup] = useState('beverages');
   const [activeCat, setActiveCat] = useState('hot-bev');
   const [currentUser, setCurrentUser] = useState(null);
+
+  function selectGroup(group) {
+    setActiveGroup(group.id);
+    setActiveCat(group.cats[0]);
+  }
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => setCurrentUser(session?.user ?? null));
@@ -109,11 +126,20 @@ export default function MenuPage() {
 
       {/* STICKY CATEGORIES */}
       <div className="sticky-cats">
-        {ALL_CATS.map(cat => (
-          <button key={cat} className={`cat-pill${activeCat===cat?' active':''}`} onClick={() => setActiveCat(cat)}>
-            {sections[cat].icon} {sections[cat].label}
-          </button>
-        ))}
+        <div className="group-tabs">
+          {GROUPS.map(group => (
+            <button key={group.id} className={`group-pill${activeGroup===group.id?' active':''}`} onClick={() => selectGroup(group)}>
+              {group.icon} {group.label}
+            </button>
+          ))}
+        </div>
+        <div className="cat-tabs">
+          {GROUPS.find(group => group.id === activeGroup).cats.map(cat => (
+            <button key={cat} className={`cat-pill${activeCat===cat?' active':''}`} onClick={() => setActiveCat(cat)}>
+              {sections[cat].icon} {sections[cat].label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* MENU ITEMS */}

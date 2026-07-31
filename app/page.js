@@ -21,6 +21,12 @@ const menuItems = [
   {n:"Cocacola",p:70,cat:"drinks"},{n:"Badam Juice",p:160,cat:"drinks"},
 ];
 
+const offers = [
+  {icon:"🛏️🍽️", title:"Stay & Dine Combo", desc:"Book any room for 2 nights or more and enjoy a complimentary breakfast set every morning of your stay.", badge:"Popular"},
+  {icon:"📅", title:"Weekday Getaway", desc:"Save on room rates when you check in Sunday through Thursday. Ask us for the current weekday rate."},
+  {icon:"👨‍👩‍👧‍👦", title:"Family Feast Package", desc:"Book a Family Room and get a free Mo:Mo platter for the table — perfect for family trips."},
+];
+
 const reviews = [
   {name:"Ramesh Shrestha",loc:"Kathmandu",stars:5,text:"Amazing food and very cozy rooms. The staff is incredibly welcoming. Will definitely come back!"},
   {name:"Sita Gurung",loc:"Pokhara",stars:5,text:"The momo and chicken sekuwa are absolutely delicious. Best restro in the area without doubt."},
@@ -556,6 +562,26 @@ export default function HomePage() {
         ) : (
           <p className="rooms-preview-empty">Room photos and prices are coming soon — <Link href="/#booking">contact us to book</Link>.</p>
         )}
+      </section>
+
+      {/* OFFERS */}
+      <section className="section-wrap offers-section" id="offers">
+        <div className="s-eyebrow">Special Offers</div>
+        <h2 className="s-title">Sweeten Your Stay</h2>
+        <p className="s-sub">Pair your room booking with these deals — ask our team to apply one when you reserve.</p>
+        <div className="offers-grid">
+          {offers.map(offer => (
+            <div className="offer-card-3d" key={offer.title}>
+              {offer.badge && <span className="offer-badge">{offer.badge}</span>}
+              <div className="offer-icon">{offer.icon}</div>
+              <h3 className="offer-title">{offer.title}</h3>
+              <p className="offer-desc">{offer.desc}</p>
+            </div>
+          ))}
+        </div>
+        <div className="offers-cta-row">
+          <a href="#booking" className="btn-3d btn-gold-3d">Claim an Offer</a>
+        </div>
       </section>
 
       {/* GALLERY */}
