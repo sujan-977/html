@@ -133,6 +133,19 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(7,17,31,0.96
 .view-menu-3d{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:32px;padding:16px;background:linear-gradient(135deg,var(--navy),var(--blue));border-radius:16px;color:#fff;text-decoration:none;font-size:14px;font-weight:500;box-shadow:0 6px 0 #06111e,0 10px 30px rgba(18,86,168,0.3);transition:all .25s}
 .view-menu-3d:hover{transform:translateY(-3px);box-shadow:0 9px 0 #06111e,0 16px 36px rgba(18,86,168,0.4)}
 
+/* ROOMS PREVIEW */
+.rooms-grid-3d{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:20px}
+.rp-3d{background:#fff;border-radius:16px;overflow:hidden;border:1px solid rgba(0,0,0,0.06);transition:all .25s;box-shadow:0 4px 0 rgba(18,86,168,0.08),0 6px 20px rgba(0,0,0,0.04)}
+.rp-3d:hover{transform:translateY(-5px);box-shadow:0 8px 0 rgba(18,86,168,0.12),0 12px 30px rgba(0,0,0,0.1)}
+.rp-img{height:180px;background:linear-gradient(135deg,var(--navy),var(--blue));display:flex;align-items:center;justify-content:center;font-size:44px}
+.rp-img img{width:100%;height:100%;object-fit:cover}
+.rp-body{padding:16px 18px}
+.rp-name{font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px}
+.rp-price{font-size:18px;font-weight:700;color:var(--gold);font-family:"Cormorant Garamond",serif}
+.rp-price small{font-size:11px;color:var(--muted);font-weight:400;font-family:"Jost",sans-serif}
+.rooms-preview-empty{text-align:center;color:var(--muted);font-size:14px;margin-top:24px}
+.rooms-preview-empty a{color:var(--blue);font-weight:600}
+
 /* GALLERY */
 .gallery-bg{background:var(--dark)}
 .gallery-grid-3d{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:200px 200px;gap:14px;margin-top:48px}

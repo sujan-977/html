@@ -19,7 +19,7 @@ export default function RoomsPage() {
   return <>
     <nav className="rooms-nav"><div className="rooms-nav-inner">
       <Link className="rooms-logo" href="/"><Image src="/logo.jpg" alt="Atithi logo" width={44} height={44} /><span><strong>Atithi</strong><small>Restro &amp; Lodge</small></span></Link>
-      <div><Link href="/">Home</Link><Link href="/menu">Menu</Link><Link className="rooms-book" href="/#booking">Book a Room</Link></div>
+      <div><Link href="/">Home</Link><Link href="/loc">Locations</Link><Link href="/menu">Menu</Link><Link className="rooms-book" href="/#booking">Book a Room</Link></div>
     </div></nav>
     <main className="rooms-page">
       <section className="rooms-hero"><p>Stay with us</p><h1>Our Rooms</h1><span>Comfortable spaces, clear prices, and warm Nepali hospitality.</span></section>

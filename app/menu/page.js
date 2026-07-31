@@ -83,6 +83,7 @@ export default function MenuPage() {
           <div className="nav-right">
             <Link href="/">Home</Link>
             <Link href="/loc">Locations</Link>
+            <Link href="/rooms">Rooms</Link>
             <Link href="/#booking" className="nav-book">Book a Room</Link>
           </div>
         </div>

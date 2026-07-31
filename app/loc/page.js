@@ -43,6 +43,7 @@ export default function LocPage() {
             <li><Link href="/">Home</Link></li>
             <li><Link href="/loc">Locations</Link></li>
             <li><Link href="/menu">Menu</Link></li>
+            <li><Link href="/rooms">Rooms</Link></li>
             <li><Link href="/#booking" className="nav-cta">Book Now</Link></li>
           </ul>
         </div>
@@ -133,7 +134,7 @@ export default function LocPage() {
           </div>
           <div className="footer-col">
             <h5>Quick Links</h5>
-            <ul><li><Link href="/">Home</Link></li><li><Link href="/loc">Locations</Link></li><li><Link href="/menu">Menu</Link></li></ul>
+            <ul><li><Link href="/">Home</Link></li><li><Link href="/loc">Locations</Link></li><li><Link href="/menu">Menu</Link></li><li><Link href="/rooms">Rooms</Link></li></ul>
           </div>
           <div className="footer-col">
             <h5>Contact</h5>

@@ -124,6 +124,14 @@ export default function HomePage() {
   const [checkoutBs, setCheckoutBs] = useState(() => nextBsValue(bsValue(getTodayBs())));
   const [checkinTime, setCheckinTime] = useState('14:00');
   const [isBookingLoading, setIsBookingLoading] = useState(false);
+  const [previewRooms, setPreviewRooms] = useState([]);
+
+  useEffect(() => {
+    fetch('/api/rooms')
+      .then(res => res.json())
+      .then(data => setPreviewRooms((data.rooms || []).filter(room => room.is_available)))
+      .catch(() => setPreviewRooms([]));
+  }, []);
 
   useEffect(() => {
     async function loadUser() {
@@ -308,6 +316,7 @@ export default function HomePage() {
             <li><Link href="/">Home</Link></li>
             <li><Link href="/loc">Locations</Link></li>
             <li><Link href="/menu">Menu</Link></li>
+            <li><Link href="/rooms">Rooms</Link></li>
             <li><Link href="/#booking">Book Now</Link></li>
           </ul>
           <div style={{display:'flex',gap:8,alignItems:'center',position:'relative'}}>
@@ -337,6 +346,7 @@ export default function HomePage() {
         <Link href="/" onClick={() => setMobileOpen(false)}>Home</Link>
         <Link href="/loc" onClick={() => setMobileOpen(false)}>Locations</Link>
         <Link href="/menu" onClick={() => setMobileOpen(false)}>Full Menu</Link>
+        <Link href="/rooms" onClick={() => setMobileOpen(false)}>Our Rooms</Link>
         <Link href="/#booking" className="m-cta" onClick={() => setMobileOpen(false)}>Book a Room</Link>
         {currentUser ? (
           <div className="mobile-account">
@@ -522,6 +532,32 @@ export default function HomePage() {
         </Link>
       </section>
 
+      {/* ROOMS PREVIEW */}
+      <section className="section-wrap" id="rooms">
+        <div className="s-eyebrow">Stay With Us</div>
+        <h2 className="s-title">Our Rooms</h2>
+        {previewRooms.length > 0 ? (
+          <>
+            <div className="rooms-grid-3d">
+              {previewRooms.slice(0, 3).map(room => (
+                <div className="rp-3d" key={room.id}>
+                  <div className="rp-img">{room.image_url ? <img src={room.image_url} alt={room.name} /> : <span>🛏️</span>}</div>
+                  <div className="rp-body">
+                    <div className="rp-name">{room.name}</div>
+                    <div className="rp-price">NPR {Number(room.price).toLocaleString()}<small> / night</small></div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <Link href="/rooms" className="view-menu-3d" style={{marginTop:32,display:'flex',alignItems:'center',justifyContent:'center',gap:10,textDecoration:'none'}}>
+              View All Rooms →
+            </Link>
+          </>
+        ) : (
+          <p className="rooms-preview-empty">Room photos and prices are coming soon — <Link href="/#booking">contact us to book</Link>.</p>
+        )}
+      </section>
+
       {/* GALLERY */}
       <section className="section-wrap gallery-bg" id="gallery">
         <div className="s-eyebrow" style={{color:'rgba(245,166,35,0.9)'}}>Our Space</div>
@@ -570,6 +606,7 @@ export default function HomePage() {
               <li><Link href="/">Home</Link></li>
               <li><Link href="/loc">Locations</Link></li>
               <li><Link href="/menu">Menu</Link></li>
+              <li><Link href="/rooms">Rooms</Link></li>
               <li><Link href="/online">Online Shop</Link></li>
             </ul>
           </div>
