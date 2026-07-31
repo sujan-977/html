@@ -47,8 +47,8 @@ export default function MenuPage() {
   }
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => setCurrentUser(session?.user ?? null));
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => setCurrentUser(session?.user ?? null));
+    supabase.auth.getSession().then(({ data: { session } }) => setCurrentUser(session?.user ? { ...session.user, token: session.access_token } : null));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => setCurrentUser(session?.user ? { ...session.user, token: session.access_token } : null));
     return () => subscription.unsubscribe();
   }, []);
 
@@ -76,6 +76,33 @@ export default function MenuPage() {
   }
   const cartCount = Object.values(cart).reduce((a,v)=>a+v.qty,0);
   const cartTotal = Object.values(cart).reduce((a,v)=>a+v.total,0);
+  const [placingOrder, setPlacingOrder] = useState(false);
+
+  async function placeOrder() {
+    if (!requireSignIn()) return;
+    if (Object.keys(cart).length === 0) {
+      alert('Please add food items before placing an order.');
+      return;
+    }
+    if (placingOrder) return;
+    setPlacingOrder(true);
+    try {
+      const items = Object.entries(cart).map(([k,v])=>({name:k,...v}));
+      const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + currentUser.token },
+        body: JSON.stringify({ email: currentUser.email, items, total: cartTotal }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Could not place order.');
+      alert('Order placed! Total: NPR '+cartTotal+'\nWe will confirm shortly.');
+      setCart({}); setDrawerOpen(false);
+    } catch (err) {
+      alert(err.message || 'Could not place order. Please try again.');
+    } finally {
+      setPlacingOrder(false);
+    }
+  }
 
   function orderWhatsApp() {
     if (!requireSignIn()) return;
@@ -210,19 +237,7 @@ export default function MenuPage() {
         </div>
         <div className="cart-footer">
           <div className="cart-total-row"><span>Total</span><span>NPR {cartTotal}</span></div>
-          <button className="checkout-now" onClick={() => {
-            if (!requireSignIn()) return;
-            if (Object.keys(cart).length === 0) {
-              alert('Please add food items before placing an order.');
-              return;
-            }
-            const orders = JSON.parse(localStorage.getItem('atithi_food_orders')||'[]');
-            const items = Object.entries(cart).map(([k,v])=>({name:k,...v}));
-            orders.push({id:'FO'+Date.now(),items,total:cartTotal,email:currentUser.email,status:'Pending',created:new Date().toISOString()});
-            localStorage.setItem('atithi_food_orders', JSON.stringify(orders));
-            alert('Order placed! Total: NPR '+cartTotal+'\nWe will confirm shortly.');
-            setCart({}); setDrawerOpen(false);
-          }}>Place Order</button>
+          <button className="checkout-now" onClick={placeOrder} disabled={placingOrder}>{placingOrder ? 'Placing order…' : 'Place Order'}</button>
           <button className="wa-order" onClick={orderWhatsApp}>
             <svg width="18" height="18" fill="white" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M12.05 2C6.495 2 2 6.507 2 12.067c0 1.903.504 3.683 1.376 5.224L2 22l4.85-1.273a9.98 9.98 0 0 0 5.2 1.446C17.554 22.173 22 17.666 22 12.106 22 6.547 17.605 2 12.05 2"/></svg>
             Order via WhatsApp

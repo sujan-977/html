@@ -251,6 +251,15 @@ strong{
 .reject{ background:#c33227; }
 .decision:hover:not(:disabled){ filter:brightness(.92); }
 
+.order-items{
+    list-style:none;
+    display:flex;
+    flex-direction:column;
+    gap:3px;
+    font-size:13px;
+    color:#444;
+}
+
 /* EMPTY */
 
 .empty{

@@ -649,6 +649,12 @@ nav{
     box-shadow:0 7px 0 #a86500,0 12px 24px rgba(245,166,35,.4);
 }
 
+.checkout-now:disabled{
+    opacity:.65;
+    cursor:not-allowed;
+    transform:none;
+}
+
 .wa-order{
     background:linear-gradient(135deg,#25d366,#1da851);
     display:flex;

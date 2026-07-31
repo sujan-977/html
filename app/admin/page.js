@@ -16,6 +16,8 @@ export default function AdminPage() {
   const [authState, setAuthState] = useState('');
   const [liveState, setLiveState] = useState('');
   const [updatingId, setUpdatingId] = useState('');
+  const [orders, setOrders] = useState([]);
+  const [updatingOrderId, setUpdatingOrderId] = useState('');
   const [rooms, setRooms] = useState([]);
   const [roomForm, setRoomForm] = useState({ name: '', price: '', description: '', capacity: '', amenities: '', image_url: '', is_available: true });
   const [editingRoomId, setEditingRoomId] = useState('');
@@ -31,7 +33,7 @@ export default function AdminPage() {
   }, []);
 
   useEffect(() => {
-    if (authenticated) { loadBookings(); loadRooms(); }
+    if (authenticated) { loadBookings(); loadRooms(); loadOrders(); }
   }, [authenticated]);
 
   async function signIn() {
@@ -95,6 +97,34 @@ export default function AdminPage() {
     } catch (err) {
       setLiveState(`❌ ${err.message}`);
     } finally { setUpdatingId(''); }
+  }
+
+  async function loadOrders() {
+    try {
+      const res = await fetch('/api/orders');
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Could not load orders.');
+      setOrders(data.orders || []);
+    } catch (err) {
+      if (err.message === 'Unauthorized.') setAuthenticated(false);
+    }
+  }
+
+  async function decideOrder(id, status) {
+    if (!window.confirm(`${status === 'Confirmed' ? 'Accept' : 'Reject'} this food order?`)) return;
+    try {
+      setUpdatingOrderId(id);
+      setLiveState(`Updating order ${id}…`);
+      const res = await fetch('/api/orders', {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, status }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.order) throw new Error(data.error || 'Could not update order.');
+      setOrders(items => items.map(o => o.id === id ? data.order : o));
+      setLiveState(data.error ? `⚠️ ${data.error}` : `✓ ${data.message}`);
+    } catch (err) {
+      setLiveState(`❌ ${err.message}`);
+    } finally { setUpdatingOrderId(''); }
   }
 
   async function loadRooms() {
@@ -167,6 +197,7 @@ export default function AdminPage() {
   const pendingCount = bookings.filter(b => b.status === 'Pending').length;
   const todayCount = bookings.filter(b => (b.created_at || '').slice(0, 10) === today).length;
   const branchCount = new Set(bookings.map(b => b.branch).filter(Boolean)).size;
+  const pendingOrdersCount = orders.filter(o => o.status === 'Pending').length;
   const fmt = value => value ? new Date(value).toLocaleString() : '-';
 
   if (checkingSession) return <main className="admin-loading">Checking secure admin access…</main>;
@@ -207,6 +238,10 @@ export default function AdminPage() {
       <div className="toolbar"><input className="control" id="search" placeholder="Search name, phone, email, branch..." value={search} onChange={e => setSearch(e.target.value)} /><select className="control" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}><option value="">All statuses</option><option>Pending</option><option>Confirmed</option><option>Rejected</option></select><button className="btn" onClick={loadBookings}>Refresh bookings</button></div>
       <div className="statusbar"><div className="stat"><strong>{bookings.length}</strong><span>Total Bookings</span></div><div className="stat"><strong>{pendingCount}</strong><span>Pending</span></div><div className="stat"><strong>{todayCount}</strong><span>Today</span></div><div className="stat"><strong>{branchCount}</strong><span>Branches Active</span></div></div>
       <section className="panel"><div className="table-wrap"><table><thead><tr><th>Booking</th><th>Customer</th><th>Stay</th><th>Room</th><th>Food</th><th>Payment</th><th>Status</th><th>Action</th><th>Received</th></tr></thead><tbody>{filtered.map(b => <tr key={b.id}><td><strong>{b.id}</strong><div className="muted">{b.branch || '-'}</div></td><td><strong>{b.name}</strong><div className="muted">{b.email}</div><div className="muted">{b.phone}</div></td><td>{b.checkin || '-'} → {b.checkout || '-'}<div className="muted">{b.guests} guest{(parseInt(b.guests) || 1) > 1 ? 's' : ''}</div></td><td>{b.room_type || '-'}</td><td>{b.food || '-'}</td><td>{b.payment_method || 'TBD'}</td><td><span className={`pill ${(b.status || 'Pending').toLowerCase()}`}>{b.status || 'Pending'}</span></td><td>{b.status === 'Pending' ? <div className="actions"><button className="decision accept" disabled={updatingId === b.id} onClick={() => decideBooking(b.id, 'Confirmed')}>Accept</button><button className="decision reject" disabled={updatingId === b.id} onClick={() => decideBooking(b.id, 'Rejected')}>Reject</button></div> : <span className="muted">Decision sent</span>}</td><td className="muted">{fmt(b.created_at)}</td></tr>)}</tbody></table></div>{filtered.length === 0 && <div className="empty">No bookings yet.</div>}</section>
+
+      <div className="toolbar" style={{marginTop:40}}><h2 style={{margin:0}}>Food Pre-Orders</h2><button className="btn" onClick={loadOrders}>Refresh orders</button></div>
+      <div className="statusbar"><div className="stat"><strong>{orders.length}</strong><span>Total Orders</span></div><div className="stat"><strong>{pendingOrdersCount}</strong><span>Pending</span></div></div>
+      <section className="panel"><div className="table-wrap"><table><thead><tr><th>Order</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Action</th><th>Received</th></tr></thead><tbody>{orders.map(o => <tr key={o.id}><td><strong>{o.id}</strong></td><td>{o.email}</td><td><ul className="order-items">{(o.items || []).map(item => <li key={item.name}>{item.name} × {item.qty}</li>)}</ul></td><td>NPR {Number(o.total).toLocaleString()}</td><td><span className={`pill ${(o.status || 'Pending').toLowerCase()}`}>{o.status || 'Pending'}</span></td><td>{o.status === 'Pending' ? <div className="actions"><button className="decision accept" disabled={updatingOrderId === o.id} onClick={() => decideOrder(o.id, 'Confirmed')}>Accept</button><button className="decision reject" disabled={updatingOrderId === o.id} onClick={() => decideOrder(o.id, 'Rejected')}>Reject</button></div> : <span className="muted">Decision sent</span>}</td><td className="muted">{fmt(o.created_at)}</td></tr>)}</tbody></table></div>{orders.length === 0 && <div className="empty">No food orders yet.</div>}</section>
     </main>
   </>;
 }
