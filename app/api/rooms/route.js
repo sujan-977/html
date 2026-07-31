@@ -23,7 +23,11 @@ export async function GET() {
     const supabase = getSupabaseServerClient();
     const { data, error } = await supabase.from('rooms').select('*').order('created_at', { ascending: false });
     if (error) throw error;
-    return NextResponse.json({ rooms: data || [] });
+    const rooms = (data || []).map(room => ({
+      ...room,
+      amenities: Array.isArray(room.amenities) ? room.amenities : [],
+    }));
+    return NextResponse.json({ rooms });
   } catch (error) {
     return NextResponse.json({ error: error.message || 'Could not load rooms.' }, { status: 500 });
   }
