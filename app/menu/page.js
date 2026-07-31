@@ -91,6 +91,7 @@ export default function MenuPage() {
 
       {/* HERO */}
       <div className="menu-hero">
+        <span className="menu-eyebrow">✦ Fresh Daily &middot; Made to Order</span>
         <h1>Our Menu</h1>
         <p>Authentic Nepali cuisine prepared with love and fresh ingredients</p>
         <div className="branch-preface">
